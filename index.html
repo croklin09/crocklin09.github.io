@@ -22,6 +22,24 @@
     }
     #legend.hidden { display: none; }
     #legend .swatch { width: 12px; height: 12px; border-radius: 2px; background: #2fa84f; }
+    #section-tools { position: fixed; left: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    #section-tools.hidden { display: none; }
+    .section-tool { display: flex; align-items: center; gap: 8px; }
+    .section-btn {
+      width: 40px; height: 40px; padding: 0; border: 1px solid #c4c9cf; border-radius: 6px; cursor: pointer;
+      background: rgba(255, 255, 255, .9); color: #333; display: grid; place-items: center;
+    }
+    .section-btn:hover { background: #fff; }
+    .section-btn:focus-visible { outline: 2px solid #1f6feb; outline-offset: 2px; }
+    .section-btn[aria-pressed="true"] { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+    .section-controls {
+      display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px;
+      background: rgba(255, 255, 255, .9); color: #333; font-size: 12px;
+    }
+    .section-controls[hidden] { display: none; }
+    .section-controls input[type="range"] { width: 160px; }
+    .section-controls output { min-width: 56px; font-variant-numeric: tabular-nums; text-align: right; }
+    .section-controls button { font-size: 12px; padding: 2px 8px; border: 1px solid #c4c9cf; border-radius: 4px; background: #fff; cursor: pointer; }
   </style>
   <script type="importmap">
     {
@@ -37,6 +55,38 @@
   <div id="viewer"></div>
   <div id="status">Loading viewer…</div>
   <div id="legend" class="hidden"><span class="swatch"></span><span id="legend-text"></span></div>
+  <div id="section-tools" class="hidden">
+    <div class="section-tool" data-axis="x">
+      <button type="button" class="section-btn" id="section-x-btn" aria-pressed="false" title="Corte en X">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <circle cx="5" cy="21" r="3"/><circle cx="12" cy="24" r="3"/>
+          <path d="M7.4 19.2 17 4M10.6 21.4 4 6"/>
+          <text x="20.5" y="25" font-size="11" font-weight="700" font-family="system-ui, sans-serif" fill="currentColor" stroke="none" text-anchor="middle">X</text>
+        </svg>
+      </button>
+      <div class="section-controls" hidden>
+        <label for="section-x-range">Corte X</label>
+        <input type="range" id="section-x-range" min="0" max="1" step="0.001" value="0.5">
+        <output for="section-x-range" title="Distancia desde el borde del modelo"></output>
+        <button type="button" class="section-flip" title="Invertir el lado visible">Invertir</button>
+      </div>
+    </div>
+    <div class="section-tool" data-axis="y">
+      <button type="button" class="section-btn" id="section-y-btn" aria-pressed="false" title="Corte en Y">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <circle cx="5" cy="21" r="3"/><circle cx="12" cy="24" r="3"/>
+          <path d="M7.4 19.2 17 4M10.6 21.4 4 6"/>
+          <text x="20.5" y="25" font-size="11" font-weight="700" font-family="system-ui, sans-serif" fill="currentColor" stroke="none" text-anchor="middle">Y</text>
+        </svg>
+      </button>
+      <div class="section-controls" hidden>
+        <label for="section-y-range">Corte Y</label>
+        <input type="range" id="section-y-range" min="0" max="1" step="0.001" value="0.5">
+        <output for="section-y-range" title="Distancia desde el borde del modelo"></output>
+        <button type="button" class="section-flip" title="Invertir el lado visible">Invertir</button>
+      </div>
+    </div>
+  </div>
   <div id="hint">Left drag: orbit · Right drag: pan · Wheel: zoom · F: fit model</div>
 
   <script type="module">
@@ -76,6 +126,8 @@
     const sun = new THREE.DirectionalLight(0xffffff, 1.4);
     sun.position.set(30, 50, 20);
     scene.add(sun);
+
+    renderer.localClippingEnabled = true;
 
     const grid = new THREE.GridHelper(100, 100, 0xbbbbbb, 0xd5d5d5);
     scene.add(grid);
@@ -179,6 +231,62 @@
       return result;
     }
 
+    // --- Section cuts ----------------------------------------------------------
+    // Vertical section planes along the project's plan axes. web-ifc converts
+    // IFC (Z-up) to Y-up as (x, y, z) -> (x, z, -y), so IFC X is scene +X and
+    // IFC Y is scene -Z. Each plane keeps the side with the lower coordinate
+    // visible; "Invertir" shows the other side.
+    function setupSectionTools(model) {
+      const box = new THREE.Box3().setFromObject(model);
+      const sections = {
+        x: { normal: new THREE.Vector3(-1, 0, 0), min: box.min.x, max: box.max.x },
+        y: { normal: new THREE.Vector3(0, 0, 1), min: -box.max.z, max: -box.min.z },
+      };
+      const materials = [];
+      model.traverse((o) => { if (o.isMesh) materials.push(o.material); });
+      const applyPlanes = () => {
+        const planes = Object.values(sections).filter((s) => s.active).map((s) => s.plane);
+        materials.forEach((m) => { m.clippingPlanes = planes; m.needsUpdate = true; });
+      };
+
+      for (const [axis, section] of Object.entries(sections)) {
+        const tool = document.querySelector(`.section-tool[data-axis="${axis}"]`);
+        const button = tool.querySelector('.section-btn');
+        const controls = tool.querySelector('.section-controls');
+        const range = tool.querySelector('input[type="range"]');
+        const output = tool.querySelector('output');
+        section.plane = new THREE.Plane(section.normal.clone(), 0);
+        section.flipped = false;
+
+        const update = () => {
+          // Position along the IFC axis; shown as distance from the model's edge
+          // (geometry is shifted to the origin on load, so absolute coordinates differ).
+          const t = Number(range.value);
+          const pos = section.min + (section.max - section.min) * t;
+          output.textContent = `${(pos - section.min).toFixed(2)} m`;
+          // Scene coordinate of the cut: IFC X -> scene x, IFC Y -> scene -z.
+          const point = axis === 'x' ? new THREE.Vector3(pos, 0, 0) : new THREE.Vector3(0, 0, -pos);
+          const normal = section.normal.clone().multiplyScalar(section.flipped ? -1 : 1);
+          section.plane.setFromNormalAndCoplanarPoint(normal, point);
+        };
+
+        button.addEventListener('click', () => {
+          section.active = !section.active;
+          button.setAttribute('aria-pressed', String(section.active));
+          controls.hidden = !section.active;
+          update();
+          applyPlanes();
+        });
+        range.addEventListener('input', update);
+        tool.querySelector('.section-flip').addEventListener('click', () => {
+          section.flipped = !section.flipped;
+          update();
+        });
+        update();
+      }
+      document.getElementById('section-tools').classList.remove('hidden');
+    }
+
     function fitToModel(object) {
       const box = new THREE.Box3().setFromObject(object);
       if (box.isEmpty()) return;
@@ -200,6 +308,7 @@
       const model = await loadIfc(MODEL_URL);
       scene.add(model);
       fitToModel(model);
+      setupSectionTools(model);
       window.addEventListener('keydown', (e) => { if (e.key === 'f' || e.key === 'F') fitToModel(model); });
       const legendEl = document.getElementById('legend');
       document.getElementById('legend-text').textContent = `${CERTIFIED_PROPERTY}: ${model.userData.certifiedCount} element(s)`;
