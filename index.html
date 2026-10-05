@@ -16,6 +16,12 @@
       position: fixed; left: 12px; bottom: 12px; padding: 6px 10px; border-radius: 6px;
       background: rgba(255, 255, 255, .85); color: #333; font-size: 12px;
     }
+    #legend {
+      position: fixed; right: 12px; top: 12px; display: flex; align-items: center; gap: 8px;
+      padding: 6px 10px; border-radius: 6px; background: rgba(255, 255, 255, .85); color: #333; font-size: 12px;
+    }
+    #legend.hidden { display: none; }
+    #legend .swatch { width: 12px; height: 12px; border-radius: 2px; background: #2fa84f; }
   </style>
   <script type="importmap">
     {
@@ -30,17 +36,22 @@
 <body>
   <div id="viewer"></div>
   <div id="status">Loading viewer…</div>
+  <div id="legend" class="hidden"><span class="swatch"></span><span id="legend-text"></span></div>
   <div id="hint">Left drag: orbit · Right drag: pan · Wheel: zoom · F: fit model</div>
 
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-    import { IfcAPI } from 'web-ifc';
+    import { IfcAPI, IFCRELDEFINESBYPROPERTIES } from 'web-ifc';
 
     // Model preloaded on page open. Replace models/model.ifc to show another project.
     const MODEL_URL = 'models/model.ifc';
     const WEB_IFC_WASM_PATH = 'https://cdn.jsdelivr.net/npm/web-ifc@0.0.78/';
+
+    // Elements whose "Certificated" property is YES/TRUE are drawn in this color.
+    const CERTIFIED_PROPERTY = 'Certificated';
+    const CERTIFIED_COLOR = { x: 0x2f / 255, y: 0xa8 / 255, z: 0x4f / 255, w: 1 };
 
     const statusEl = document.getElementById('status');
     const setStatus = (text) => { statusEl.textContent = text; statusEl.classList.toggle('hidden', !text); };
@@ -95,6 +106,7 @@
 
       setStatus('Processing geometry…');
       const modelID = ifcApi.OpenModel(data, { COORDINATE_TO_ORIGIN: true });
+      const certified = findCertifiedElements(ifcApi, modelID);
       const byColor = new Map();
 
       ifcApi.StreamAllMeshes(modelID, (mesh) => {
@@ -121,7 +133,7 @@
           geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(indices), 1));
           geometry.applyMatrix4(new THREE.Matrix4().fromArray(placed.flatTransformation));
 
-          const { x: r, y: g, z: b, w: a } = placed.color;
+          const { x: r, y: g, z: b, w: a } = certified.has(mesh.expressID) ? CERTIFIED_COLOR : placed.color;
           const key = `${r.toFixed(3)},${g.toFixed(3)},${b.toFixed(3)},${a.toFixed(3)}`;
           if (!byColor.has(key)) byColor.set(key, { color: [r, g, b], opacity: a, geometries: [] });
           byColor.get(key).geometries.push(geometry);
@@ -142,7 +154,29 @@
         geometries.forEach((g) => g.dispose());
         model.add(new THREE.Mesh(merged, material));
       }
+      model.userData.certifiedCount = certified.size;
       return model;
+    }
+
+    // Walks IfcRelDefinesByProperties and returns the expressIDs of elements
+    // carrying a CERTIFIED_PROPERTY property whose value is YES / TRUE.
+    function findCertifiedElements(ifcApi, modelID) {
+      const isTrue = (v) => v != null && ['YES', 'TRUE', 'T', '1'].includes(String(v.value ?? v).toUpperCase());
+      const result = new Set();
+      const rels = ifcApi.GetLineIDsWithType(modelID, IFCRELDEFINESBYPROPERTIES);
+      for (let i = 0; i < rels.size(); i++) {
+        const rel = ifcApi.GetLine(modelID, rels.get(i));
+        const pset = ifcApi.GetLine(modelID, rel.RelatingPropertyDefinition.value);
+        const props = pset.HasProperties ?? [];
+        const certifiedProp = props
+          .map((ref) => ifcApi.GetLine(modelID, ref.value))
+          .find((prop) => prop.Name?.value === CERTIFIED_PROPERTY);
+        if (!certifiedProp) continue;
+        const values = certifiedProp.EnumerationValues ?? [certifiedProp.NominalValue];
+        if (!values.some(isTrue)) continue;
+        for (const obj of rel.RelatedObjects) result.add(obj.value);
+      }
+      return result;
     }
 
     function fitToModel(object) {
@@ -167,6 +201,9 @@
       scene.add(model);
       fitToModel(model);
       window.addEventListener('keydown', (e) => { if (e.key === 'f' || e.key === 'F') fitToModel(model); });
+      const legendEl = document.getElementById('legend');
+      document.getElementById('legend-text').textContent = `${CERTIFIED_PROPERTY}: ${model.userData.certifiedCount} element(s)`;
+      legendEl.classList.remove('hidden');
       setStatus('');
     } catch (err) {
       console.error(err);
