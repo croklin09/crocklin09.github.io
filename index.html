@@ -1,7 +1,214 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IFC Viewer</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #e9ecef; font-family: system-ui, sans-serif; }
+    #viewer { position: fixed; inset: 0; }
+    #status {
+      position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      padding: 12px 18px; border-radius: 8px; background: rgba(0, 0, 0, .75); color: #fff; font-size: 14px;
+    }
+    #status.hidden { display: none; }
+    #hint {
+      position: fixed; left: 12px; bottom: 12px; padding: 6px 10px; border-radius: 6px;
+      background: rgba(255, 255, 255, .85); color: #333; font-size: 12px;
+    }
+    #legend {
+      position: fixed; right: 12px; top: 12px; display: flex; align-items: center; gap: 8px;
+      padding: 6px 10px; border-radius: 6px; background: rgba(255, 255, 255, .85); color: #333; font-size: 12px;
+    }
+    #legend.hidden { display: none; }
+    #legend .swatch { width: 12px; height: 12px; border-radius: 2px; background: #2fa84f; }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+        "web-ifc": "https://cdn.jsdelivr.net/npm/web-ifc@0.0.78/web-ifc-api.js"
+      }
+    }
+  </script>
+</head>
 <body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+  <div id="viewer"></div>
+  <div id="status">Loading viewer…</div>
+  <div id="legend" class="hidden"><span class="swatch"></span><span id="legend-text"></span></div>
+  <div id="hint">Left drag: orbit · Right drag: pan · Wheel: zoom · F: fit model</div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+    import { IfcAPI, IFCRELDEFINESBYPROPERTIES } from 'web-ifc';
+
+    // Model preloaded on page open. Replace models/model.ifc to show another project.
+    const MODEL_URL = 'models/model.ifc';
+    const WEB_IFC_WASM_PATH = 'https://cdn.jsdelivr.net/npm/web-ifc@0.0.78/';
+
+    // Elements whose "Certificated" property is YES/TRUE are drawn in this color.
+    const CERTIFIED_PROPERTY = 'Certificated';
+    const CERTIFIED_COLOR = { x: 0x2f / 255, y: 0xa8 / 255, z: 0x4f / 255, w: 1 };
+
+    const statusEl = document.getElementById('status');
+    const setStatus = (text) => { statusEl.textContent = text; statusEl.classList.toggle('hidden', !text); };
+
+    // --- Scene -------------------------------------------------------------
+    const container = document.getElementById('viewer');
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xe9ecef);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 5000);
+    camera.position.set(20, 15, 20);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x888888, 1.6));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+    sun.position.set(30, 50, 20);
+    scene.add(sun);
+
+    const grid = new THREE.GridHelper(100, 100, 0xbbbbbb, 0xd5d5d5);
+    scene.add(grid);
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    renderer.setAnimationLoop(() => {
+      controls.update();
+      renderer.render(scene, camera);
+    });
+
+    // --- IFC loading ---------------------------------------------------------
+    // web-ifc outputs Y-up geometry; meshes are merged per color to keep draw calls low.
+    async function loadIfc(url) {
+      setStatus('Initialising IFC engine…');
+      const ifcApi = new IfcAPI();
+      ifcApi.SetWasmPath(WEB_IFC_WASM_PATH, true);
+      await ifcApi.Init();
+
+      setStatus('Downloading model…');
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Could not download ${url} (HTTP ${response.status})`);
+      const data = new Uint8Array(await response.arrayBuffer());
+
+      setStatus('Processing geometry…');
+      const modelID = ifcApi.OpenModel(data, { COORDINATE_TO_ORIGIN: true });
+      const certified = findCertifiedElements(ifcApi, modelID);
+      const byColor = new Map();
+
+      ifcApi.StreamAllMeshes(modelID, (mesh) => {
+        const placedGeometries = mesh.geometries;
+        for (let i = 0; i < placedGeometries.size(); i++) {
+          const placed = placedGeometries.get(i);
+          const ifcGeometry = ifcApi.GetGeometry(modelID, placed.geometryExpressID);
+          const verts = ifcApi.GetVertexArray(ifcGeometry.GetVertexData(), ifcGeometry.GetVertexDataSize());
+          const indices = ifcApi.GetIndexArray(ifcGeometry.GetIndexData(), ifcGeometry.GetIndexDataSize());
+          ifcGeometry.delete();
+          if (!indices.length) continue;
+
+          // Interleaved [x, y, z, nx, ny, nz]
+          const count = verts.length / 6;
+          const positions = new Float32Array(count * 3);
+          const normals = new Float32Array(count * 3);
+          for (let v = 0; v < count; v++) {
+            positions.set(verts.subarray(v * 6, v * 6 + 3), v * 3);
+            normals.set(verts.subarray(v * 6 + 3, v * 6 + 6), v * 3);
+          }
+          const geometry = new THREE.BufferGeometry();
+          geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+          geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+          geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(indices), 1));
+          geometry.applyMatrix4(new THREE.Matrix4().fromArray(placed.flatTransformation));
+
+          const { x: r, y: g, z: b, w: a } = certified.has(mesh.expressID) ? CERTIFIED_COLOR : placed.color;
+          const key = `${r.toFixed(3)},${g.toFixed(3)},${b.toFixed(3)},${a.toFixed(3)}`;
+          if (!byColor.has(key)) byColor.set(key, { color: [r, g, b], opacity: a, geometries: [] });
+          byColor.get(key).geometries.push(geometry);
+        }
+      });
+      ifcApi.CloseModel(modelID);
+
+      const model = new THREE.Group();
+      for (const { color, opacity, geometries } of byColor.values()) {
+        const material = new THREE.MeshLambertMaterial({
+          color: new THREE.Color().setRGB(...color, THREE.SRGBColorSpace),
+          transparent: opacity < 1,
+          opacity,
+          side: THREE.DoubleSide,
+          depthWrite: opacity >= 1,
+        });
+        const merged = mergeGeometries(geometries, false);
+        geometries.forEach((g) => g.dispose());
+        model.add(new THREE.Mesh(merged, material));
+      }
+      model.userData.certifiedCount = certified.size;
+      return model;
+    }
+
+    // Walks IfcRelDefinesByProperties and returns the expressIDs of elements
+    // carrying a CERTIFIED_PROPERTY property whose value is YES / TRUE.
+    function findCertifiedElements(ifcApi, modelID) {
+      const isTrue = (v) => v != null && ['YES', 'TRUE', 'T', '1'].includes(String(v.value ?? v).toUpperCase());
+      const result = new Set();
+      const rels = ifcApi.GetLineIDsWithType(modelID, IFCRELDEFINESBYPROPERTIES);
+      for (let i = 0; i < rels.size(); i++) {
+        const rel = ifcApi.GetLine(modelID, rels.get(i));
+        const pset = ifcApi.GetLine(modelID, rel.RelatingPropertyDefinition.value);
+        const props = pset.HasProperties ?? [];
+        const certifiedProp = props
+          .map((ref) => ifcApi.GetLine(modelID, ref.value))
+          .find((prop) => prop.Name?.value === CERTIFIED_PROPERTY);
+        if (!certifiedProp) continue;
+        const values = certifiedProp.EnumerationValues ?? [certifiedProp.NominalValue];
+        if (!values.some(isTrue)) continue;
+        for (const obj of rel.RelatedObjects) result.add(obj.value);
+      }
+      return result;
+    }
+
+    function fitToModel(object) {
+      const box = new THREE.Box3().setFromObject(object);
+      if (box.isEmpty()) return;
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      const radius = size.length() / 2;
+      const distance = radius / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2));
+
+      grid.position.set(center.x, box.min.y, center.z);
+      controls.target.copy(center);
+      camera.position.copy(center).add(new THREE.Vector3(1, 0.7, 1).normalize().multiplyScalar(distance));
+      camera.near = distance / 1000;
+      camera.far = distance * 100;
+      camera.updateProjectionMatrix();
+      controls.update();
+    }
+
+    try {
+      const model = await loadIfc(MODEL_URL);
+      scene.add(model);
+      fitToModel(model);
+      window.addEventListener('keydown', (e) => { if (e.key === 'f' || e.key === 'F') fitToModel(model); });
+      const legendEl = document.getElementById('legend');
+      document.getElementById('legend-text').textContent = `${CERTIFIED_PROPERTY}: ${model.userData.certifiedCount} element(s)`;
+      legendEl.classList.remove('hidden');
+      setStatus('');
+    } catch (err) {
+      console.error(err);
+      setStatus(`Error: ${err.message}`);
+    }
+  </script>
 </body>
 </html>
