@@ -1,27 +1,146 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>IFC Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Lifestyle · Visor BIM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Urbanist:wght@400;500;600&display=swap">
   <style>
-    html, body { margin: 0; height: 100%; overflow: hidden; background: #e9ecef; font-family: system-ui, sans-serif; }
+    /* Lifestyle Smart Investments identity: deep blue ground, gold gradient accents,
+       Book Antigua for titles (EB Garamond fallback), Gelion for text (Urbanist fallback),
+       grey highlight bar behind labels as in the brand manual. */
+    :root {
+      --ls-blue: #174A61;
+      --ls-blue-deep: #0D3243;
+      --ls-blue-glass: rgba(13, 50, 67, .72);
+      --ls-green: #1F4E13;
+      --ls-green-lit: #5E9E3A;
+      --ls-grey: #CCCCCC;
+      --ls-sand: #B6A591;
+      --ls-ink: #1D1D1B;
+      --ls-gold: #C9963F;
+      --ls-gold-light: #F2BE73;
+      --ls-gold-gradient: linear-gradient(90deg, #A88232 0%, #F2BE73 25%, #C38E33 50%, #AE8F43 75%, #8A6924 100%);
+      --ls-line: rgba(242, 190, 115, .35);
+      --font-title: 'Book Antigua', 'Palatino Linotype', Palatino, 'EB Garamond', Georgia, serif;
+      --font-text: 'Gelion', 'Urbanist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; overflow: hidden; }
+    body {
+      background: radial-gradient(120% 90% at 50% 40%, #1E5A75 0%, var(--ls-blue) 45%, var(--ls-blue-deep) 100%);
+      color: #F4F1EC; font-family: var(--font-text); font-size: 14px;
+    }
     #viewer { position: fixed; inset: 0; }
-    #status {
-      position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
-      padding: 12px 18px; border-radius: 8px; background: rgba(0, 0, 0, .75); color: #fff; font-size: 14px;
+
+    /* Header: logo left, brand label bar right */
+    .brand-bar {
+      position: fixed; left: 0; right: 0; top: 0; z-index: 2; pointer-events: none;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: calc(14px + env(safe-area-inset-top, 0px)) 0 0 20px;
     }
-    #status.hidden { display: none; }
-    #hint {
-      position: fixed; left: 12px; bottom: 12px; padding: 6px 10px; border-radius: 6px;
-      background: rgba(255, 255, 255, .85); color: #333; font-size: 12px;
+    .brand-logo { height: 84px; width: auto; display: block; }
+    .brand-label {
+      margin-top: 10px; padding: 3px 20px 3px 40px; background: var(--ls-grey); color: var(--ls-ink);
+      font-family: var(--font-text); font-weight: 500; font-size: 12px; letter-spacing: .32em; text-transform: uppercase;
+      white-space: nowrap;
     }
+
+    /* Section-cut tools */
+    #section-tools {
+      position: fixed; left: 20px; top: calc(124px + env(safe-area-inset-top, 0px)); z-index: 2;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    #section-tools.hidden { display: none; }
+    .section-tool { display: flex; align-items: center; gap: 10px; }
+    .glass {
+      background: var(--ls-blue-glass); border: 1px solid var(--ls-line);
+      -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    }
+    .section-btn {
+      width: 46px; height: 46px; padding: 0; border-radius: 50%; cursor: pointer;
+      display: grid; place-items: center; color: var(--ls-gold-light);
+      background: var(--ls-blue-glass); border: 1px solid var(--ls-line);
+      -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+      transition: background-color .2s, border-color .2s, color .2s;
+    }
+    .section-btn:hover { border-color: var(--ls-gold-light); }
+    .section-btn:focus-visible, .section-controls button:focus-visible, .section-controls input:focus-visible {
+      outline: 2px solid var(--ls-gold-light); outline-offset: 2px;
+    }
+    .section-btn[aria-pressed="true"] { background: var(--ls-gold-gradient); border-color: transparent; color: var(--ls-blue-deep); }
+    .section-controls {
+      display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 14px; border-radius: 2px;
+    }
+    .section-controls[hidden] { display: none; }
+    .section-controls label {
+      font-family: var(--font-title); font-size: 13px; letter-spacing: .22em; text-transform: uppercase; color: var(--ls-gold-light);
+    }
+    .section-controls input[type="range"] { width: 170px; accent-color: var(--ls-gold); }
+    .section-controls output { min-width: 64px; font-variant-numeric: tabular-nums; text-align: right; color: #F4F1EC; }
+    .section-controls button {
+      font: 500 11px/1 var(--font-text); letter-spacing: .14em; text-transform: uppercase;
+      padding: 7px 10px; border: 1px solid var(--ls-line); border-radius: 2px; background: transparent; color: var(--ls-gold-light); cursor: pointer;
+    }
+    .section-controls button:hover { border-color: var(--ls-gold-light); }
+
+    /* Certificated legend */
     #legend {
-      position: fixed; right: 12px; top: 12px; display: flex; align-items: center; gap: 8px;
-      padding: 6px 10px; border-radius: 6px; background: rgba(255, 255, 255, .85); color: #333; font-size: 12px;
+      position: fixed; right: 20px; top: calc(56px + env(safe-area-inset-top, 0px)); z-index: 2;
+      display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 2px; font-size: 13px;
     }
     #legend.hidden { display: none; }
-    #legend .swatch { width: 12px; height: 12px; border-radius: 2px; background: #2fa84f; }
+    #legend .swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--ls-green-lit); box-shadow: 0 0 0 2px rgba(94, 158, 58, .25); }
+    #legend strong { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    /* Project title block, bottom right */
+    .title-block {
+      position: fixed; right: 20px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 2; pointer-events: none;
+      text-align: right;
+    }
+    .title-block h1 {
+      margin: 0; display: inline-block; padding: 0 0 0 28px; position: relative;
+      font-family: var(--font-title); font-weight: 400; font-size: 30px; letter-spacing: .08em; line-height: 1.1; color: #F4F1EC;
+    }
+    .title-block h1::after {
+      content: ''; position: absolute; left: 0; right: -20px; bottom: 4px; height: 12px; background: rgba(204, 204, 204, .22); z-index: -1;
+    }
+    .title-block p { margin: 6px 0 0; font-size: 12px; letter-spacing: .24em; text-transform: uppercase; color: var(--ls-sand); }
+
+    #hint {
+      position: fixed; left: 20px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 2;
+      font-size: 12px; letter-spacing: .06em; color: rgba(244, 241, 236, .62);
+    }
+
+    /* Loading state */
+    #status {
+      position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3;
+      display: grid; justify-items: center; gap: 14px; text-align: center; max-width: calc(100% - 32px);
+      font-family: var(--font-title); font-size: 15px; letter-spacing: .26em; text-transform: uppercase; color: var(--ls-gold-light);
+    }
+    #status::after {
+      content: ''; width: 180px; height: 1px; background: var(--ls-gold-gradient); background-size: 200% 100%;
+      animation: ls-shimmer 1.6s linear infinite;
+    }
+    #status.hidden { display: none; }
+    #status.error { color: #F4F1EC; letter-spacing: .06em; text-transform: none; font-family: var(--font-text); }
+    #status.error::after { display: none; }
+    @keyframes ls-shimmer { from { background-position: 0 0; } to { background-position: 200% 0; } }
+    @media (prefers-reduced-motion: reduce) { #status::after { animation: none; } }
+
+    @media (max-width: 640px) {
+      .brand-logo { height: 48px; }
+      .brand-label { display: none; }
+      #legend { top: calc(20px + env(safe-area-inset-top, 0px)); right: 16px; }
+      #section-tools { left: 16px; top: calc(84px + env(safe-area-inset-top, 0px)); }
+      .section-controls { flex-wrap: wrap; max-width: calc(100vw - 88px); }
+      .section-controls input[type="range"] { width: 120px; }
+      .title-block h1 { font-size: 22px; }
+      #hint { display: none; }
+    }
   </style>
   <script type="importmap">
     {
@@ -35,9 +154,49 @@
 </head>
 <body>
   <div id="viewer"></div>
-  <div id="status">Loading viewer…</div>
-  <div id="legend" class="hidden"><span class="swatch"></span><span id="legend-text"></span></div>
-  <div id="hint">Left drag: orbit · Right drag: pan · Wheel: zoom · F: fit model</div>
+  <header class="brand-bar">
+    <img class="brand-logo" src="assets/logo-lifestyle.svg" alt="Lifestyle Smart Investments">
+    <div class="brand-label">Visor BIM</div>
+  </header>
+  <div id="status">Cargando visor</div>
+  <div id="legend" class="glass hidden"><span class="swatch"></span><span id="legend-text"></span></div>
+  <div id="section-tools" class="hidden">
+    <div class="section-tool" data-axis="x">
+      <button type="button" class="section-btn" id="section-x-btn" aria-pressed="false" title="Corte en X" aria-label="Corte en X">
+        <svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true">
+          <circle cx="5.5" cy="21.5" r="3"/><circle cx="12.5" cy="24" r="3"/>
+          <path d="M7.8 19.6 17 3.5M11 21.6 4 5.5"/>
+          <text x="21.5" y="25.5" font-size="12" font-family="'Book Antigua', 'Palatino Linotype', Palatino, 'EB Garamond', serif" fill="currentColor" stroke="none" text-anchor="middle">X</text>
+        </svg>
+      </button>
+      <div class="section-controls glass" hidden>
+        <label for="section-x-range">Corte X</label>
+        <input type="range" id="section-x-range" min="0" max="1" step="0.001" value="0.5">
+        <output for="section-x-range" title="Distancia desde el borde del modelo"></output>
+        <button type="button" class="section-flip" title="Invertir el lado visible">Invertir</button>
+      </div>
+    </div>
+    <div class="section-tool" data-axis="y">
+      <button type="button" class="section-btn" id="section-y-btn" aria-pressed="false" title="Corte en Y" aria-label="Corte en Y">
+        <svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true">
+          <circle cx="5.5" cy="21.5" r="3"/><circle cx="12.5" cy="24" r="3"/>
+          <path d="M7.8 19.6 17 3.5M11 21.6 4 5.5"/>
+          <text x="21.5" y="25.5" font-size="12" font-family="'Book Antigua', 'Palatino Linotype', Palatino, 'EB Garamond', serif" fill="currentColor" stroke="none" text-anchor="middle">Y</text>
+        </svg>
+      </button>
+      <div class="section-controls glass" hidden>
+        <label for="section-y-range">Corte Y</label>
+        <input type="range" id="section-y-range" min="0" max="1" step="0.001" value="0.5">
+        <output for="section-y-range" title="Distancia desde el borde del modelo"></output>
+        <button type="button" class="section-flip" title="Invertir el lado visible">Invertir</button>
+      </div>
+    </div>
+  </div>
+  <div class="title-block">
+    <h1>OyG</h1>
+    <p>Estructura · IFC4 · v5</p>
+  </div>
+  <div id="hint">Arrastrar: orbitar · Clic derecho: desplazar · Rueda: zoom · F: encuadrar</div>
 
   <script type="module">
     import * as THREE from 'three';
@@ -51,20 +210,24 @@
 
     // Elements whose "Certificated" property is YES/TRUE are drawn in this color.
     const CERTIFIED_PROPERTY = 'Certificated';
-    const CERTIFIED_COLOR = { x: 0x2f / 255, y: 0xa8 / 255, z: 0x4f / 255, w: 1 };
+    // Lighter tint of the brand green (#1F4E13) so it reads against the blue ground.
+    const CERTIFIED_COLOR = { x: 0x5e / 255, y: 0x9e / 255, z: 0x3a / 255, w: 1 };
 
     const statusEl = document.getElementById('status');
-    const setStatus = (text) => { statusEl.textContent = text; statusEl.classList.toggle('hidden', !text); };
+    const setStatus = (text, isError = false) => {
+      statusEl.textContent = text;
+      statusEl.classList.toggle('hidden', !text);
+      statusEl.classList.toggle('error', isError);
+    };
 
     // --- Scene -------------------------------------------------------------
     const container = document.getElementById('viewer');
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xe9ecef);
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 5000);
     camera.position.set(20, 15, 20);
@@ -77,7 +240,11 @@
     sun.position.set(30, 50, 20);
     scene.add(sun);
 
-    const grid = new THREE.GridHelper(100, 100, 0xbbbbbb, 0xd5d5d5);
+    renderer.localClippingEnabled = true;
+
+    const grid = new THREE.GridHelper(100, 50, 0x6c9cb0, 0x3f7690);
+    grid.material.transparent = true;
+    grid.material.opacity = 0.35;
     scene.add(grid);
 
     window.addEventListener('resize', () => {
@@ -94,17 +261,17 @@
     // --- IFC loading ---------------------------------------------------------
     // web-ifc outputs Y-up geometry; meshes are merged per color to keep draw calls low.
     async function loadIfc(url) {
-      setStatus('Initialising IFC engine…');
+      setStatus('Iniciando motor IFC');
       const ifcApi = new IfcAPI();
       ifcApi.SetWasmPath(WEB_IFC_WASM_PATH, true);
       await ifcApi.Init();
 
-      setStatus('Downloading model…');
+      setStatus('Descargando modelo');
       const response = await fetch(url);
-      if (!response.ok) throw new Error(`Could not download ${url} (HTTP ${response.status})`);
+      if (!response.ok) throw new Error(`No se pudo descargar el modelo (${url}, HTTP ${response.status}).`);
       const data = new Uint8Array(await response.arrayBuffer());
 
-      setStatus('Processing geometry…');
+      setStatus('Procesando geometría');
       const modelID = ifcApi.OpenModel(data, { COORDINATE_TO_ORIGIN: true });
       const certified = findCertifiedElements(ifcApi, modelID);
       const byColor = new Map();
@@ -179,6 +346,62 @@
       return result;
     }
 
+    // --- Section cuts ----------------------------------------------------------
+    // Vertical section planes along the project's plan axes. web-ifc converts
+    // IFC (Z-up) to Y-up as (x, y, z) -> (x, z, -y), so IFC X is scene +X and
+    // IFC Y is scene -Z. Each plane keeps the side with the lower coordinate
+    // visible; "Invertir" shows the other side.
+    function setupSectionTools(model) {
+      const box = new THREE.Box3().setFromObject(model);
+      const sections = {
+        x: { normal: new THREE.Vector3(-1, 0, 0), min: box.min.x, max: box.max.x },
+        y: { normal: new THREE.Vector3(0, 0, 1), min: -box.max.z, max: -box.min.z },
+      };
+      const materials = [];
+      model.traverse((o) => { if (o.isMesh) materials.push(o.material); });
+      const applyPlanes = () => {
+        const planes = Object.values(sections).filter((s) => s.active).map((s) => s.plane);
+        materials.forEach((m) => { m.clippingPlanes = planes; m.needsUpdate = true; });
+      };
+
+      for (const [axis, section] of Object.entries(sections)) {
+        const tool = document.querySelector(`.section-tool[data-axis="${axis}"]`);
+        const button = tool.querySelector('.section-btn');
+        const controls = tool.querySelector('.section-controls');
+        const range = tool.querySelector('input[type="range"]');
+        const output = tool.querySelector('output');
+        section.plane = new THREE.Plane(section.normal.clone(), 0);
+        section.flipped = false;
+
+        const update = () => {
+          // Position along the IFC axis; shown as distance from the model's edge
+          // (geometry is shifted to the origin on load, so absolute coordinates differ).
+          const t = Number(range.value);
+          const pos = section.min + (section.max - section.min) * t;
+          output.textContent = `${(pos - section.min).toFixed(2)} m`;
+          // Scene coordinate of the cut: IFC X -> scene x, IFC Y -> scene -z.
+          const point = axis === 'x' ? new THREE.Vector3(pos, 0, 0) : new THREE.Vector3(0, 0, -pos);
+          const normal = section.normal.clone().multiplyScalar(section.flipped ? -1 : 1);
+          section.plane.setFromNormalAndCoplanarPoint(normal, point);
+        };
+
+        button.addEventListener('click', () => {
+          section.active = !section.active;
+          button.setAttribute('aria-pressed', String(section.active));
+          controls.hidden = !section.active;
+          update();
+          applyPlanes();
+        });
+        range.addEventListener('input', update);
+        tool.querySelector('.section-flip').addEventListener('click', () => {
+          section.flipped = !section.flipped;
+          update();
+        });
+        update();
+      }
+      document.getElementById('section-tools').classList.remove('hidden');
+    }
+
     function fitToModel(object) {
       const box = new THREE.Box3().setFromObject(object);
       if (box.isEmpty()) return;
@@ -200,14 +423,16 @@
       const model = await loadIfc(MODEL_URL);
       scene.add(model);
       fitToModel(model);
+      setupSectionTools(model);
       window.addEventListener('keydown', (e) => { if (e.key === 'f' || e.key === 'F') fitToModel(model); });
       const legendEl = document.getElementById('legend');
-      document.getElementById('legend-text').textContent = `${CERTIFIED_PROPERTY}: ${model.userData.certifiedCount} element(s)`;
+      const n = model.userData.certifiedCount;
+      document.getElementById('legend-text').innerHTML = `Certificado · <strong>${n}</strong> ${n === 1 ? 'elemento' : 'elementos'}`;
       legendEl.classList.remove('hidden');
       setStatus('');
     } catch (err) {
       console.error(err);
-      setStatus(`Error: ${err.message}`);
+      setStatus(`Error al cargar: ${err.message}`, true);
     }
   </script>
 </body>
