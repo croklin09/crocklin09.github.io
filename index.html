@@ -3,142 +3,261 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Lifestyle · Visor BIM</title>
+  <meta name="theme-color" content="#fef7e5">
+  <title>Korn · Visor BIM</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Urbanist:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;1,400&display=swap">
   <style>
-    /* Lifestyle Smart Investments identity: deep blue ground, gold gradient accents,
-       Book Antigua for titles (EB Garamond fallback), Gelion for text (Urbanist fallback),
-       grey highlight bar behind labels as in the brand manual. */
+    /* Korn Desarrolla, estética de brochure: fondo paper, acentos solo dorados,
+       Montserrat, tarjetas paper-soft con radius-photo y shadow-warm.
+       Co-branding: logo Korn arriba, sello Lifestyle + proyecto abajo. */
     :root {
-      --ls-blue: #174A61;
-      --ls-blue-deep: #0D3243;
-      --ls-blue-glass: rgba(13, 50, 67, .72);
-      --ls-green: #1F4E13;
-      --ls-green-lit: #5E9E3A;
-      --ls-grey: #CCCCCC;
-      --ls-sand: #B6A591;
-      --ls-ink: #1D1D1B;
-      --ls-gold: #C9963F;
-      --ls-gold-light: #F2BE73;
-      --ls-gold-gradient: linear-gradient(90deg, #A88232 0%, #F2BE73 25%, #C38E33 50%, #AE8F43 75%, #8A6924 100%);
-      --ls-line: rgba(242, 190, 115, .35);
-      --font-title: 'Book Antigua', 'Palatino Linotype', Palatino, 'EB Garamond', Georgia, serif;
-      --font-text: 'Gelion', 'Urbanist', system-ui, -apple-system, 'Segoe UI', sans-serif;
-      color-scheme: dark;
+      --paper: #fef7e5;
+      --paper-soft: #f8f5f0;
+      --hairline: #e1d6bf;
+      --ink: #292528;
+      --body: #2e2b22;
+      --mute: #736959;
+      --gold-500: #bc862a;
+      --gold-700: #8a6921;
+      --gold-800: #745819;
+      --gold-accent: #d4b236;
+      --on-gold: #ffffff;
+      /* Estado funcional (no es acento de marca): elementos certificados. */
+      --state-certified: #4e8a2e;
+      --shadow-warm: 0 12px 32px rgba(46, 43, 34, .10);
+      --radius-photo: 24px;
+      --radius-pill: 999px;
+      --sans: Montserrat, system-ui, -apple-system, 'Segoe UI', sans-serif;
+      color-scheme: light;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; overflow: hidden; }
-    body {
-      background: radial-gradient(120% 90% at 50% 40%, #1E5A75 0%, var(--ls-blue) 45%, var(--ls-blue-deep) 100%);
-      color: #F4F1EC; font-family: var(--font-text); font-size: 14px;
-    }
+    html { -webkit-tap-highlight-color: transparent; }
+    button, a, input { touch-action: manipulation; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+    body { background: var(--paper); color: var(--body); font-family: var(--sans); font-size: 15px; }
     #viewer { position: fixed; inset: 0; }
 
-    /* Header: logo left, brand label bar right */
-    .brand-bar {
-      position: fixed; left: 0; right: 0; top: 0; z-index: 2; pointer-events: none;
-      display: flex; align-items: flex-start; justify-content: space-between;
-      padding: calc(14px + env(safe-area-inset-top, 0px)) 0 0 20px;
-    }
-    .brand-logo { height: 84px; width: auto; display: block; }
-    .brand-label {
-      margin-top: 10px; padding: 3px 20px 3px 40px; background: var(--ls-grey); color: var(--ls-ink);
-      font-family: var(--font-text); font-weight: 500; font-size: 12px; letter-spacing: .32em; text-transform: uppercase;
-      white-space: nowrap;
-    }
+    .overline { font-size: 13px; line-height: 1.4; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; }
 
-    /* Section-cut tools */
+    /* Logo Korn, arriba a la izquierda */
+    .brand-bar {
+      position: fixed; left: 32px; top: calc(24px + env(safe-area-inset-top, 0px)); z-index: 2; pointer-events: none;
+    }
+    .brand-logo { height: 56px; width: auto; display: block; }
+
+    /* Herramientas de corte: ícono de línea blanco en círculo dorado (estilo Amenity) */
     #section-tools {
-      position: fixed; left: 20px; top: calc(124px + env(safe-area-inset-top, 0px)); z-index: 2;
-      display: flex; flex-direction: column; gap: 10px;
+      position: fixed; left: 32px; top: calc(112px + env(safe-area-inset-top, 0px)); z-index: 2;
+      display: flex; flex-direction: column; gap: 12px;
     }
     #section-tools.hidden { display: none; }
-    .section-tool { display: flex; align-items: center; gap: 10px; }
-    .glass {
-      background: var(--ls-blue-glass); border: 1px solid var(--ls-line);
-      -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-    }
+    .section-tool { display: flex; align-items: center; gap: 12px; }
+    .card { background: var(--paper-soft); border: 1px solid var(--hairline); box-shadow: var(--shadow-warm); }
     .section-btn {
-      width: 46px; height: 46px; padding: 0; border-radius: 50%; cursor: pointer;
-      display: grid; place-items: center; color: var(--ls-gold-light);
-      background: var(--ls-blue-glass); border: 1px solid var(--ls-line);
-      -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-      transition: background-color .2s, border-color .2s, color .2s;
+      width: 48px; height: 48px; padding: 0; border-radius: 50%; cursor: pointer;
+      display: grid; place-items: center; color: var(--gold-700);
+      background: var(--paper-soft); border: 1px solid var(--hairline); box-shadow: var(--shadow-warm);
+      transition: background-color .2s, color .2s, border-color .2s;
     }
-    .section-btn:hover { border-color: var(--ls-gold-light); }
-    .section-btn:focus-visible, .section-controls button:focus-visible, .section-controls input:focus-visible {
-      outline: 2px solid var(--ls-gold-light); outline-offset: 2px;
+    .section-btn:hover { border-color: var(--gold-500); }
+    .section-btn[aria-pressed="true"] { background: var(--gold-700); border-color: var(--gold-700); color: var(--on-gold); }
+    .section-btn[aria-pressed="true"]:hover { background: var(--gold-800); }
+    :is(.section-btn, .section-controls button, .section-controls input):focus-visible {
+      outline: 2px solid var(--gold-700); outline-offset: 2px;
     }
-    .section-btn[aria-pressed="true"] { background: var(--ls-gold-gradient); border-color: transparent; color: var(--ls-blue-deep); }
     .section-controls {
-      display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 14px; border-radius: 2px;
+      display: flex; align-items: center; gap: 16px; padding: 10px 12px 10px 20px; border-radius: var(--radius-pill);
     }
     .section-controls[hidden] { display: none; }
-    .section-controls label {
-      font-family: var(--font-title); font-size: 13px; letter-spacing: .22em; text-transform: uppercase; color: var(--ls-gold-light);
-    }
-    .section-controls input[type="range"] { width: 170px; accent-color: var(--ls-gold); }
-    .section-controls output { min-width: 64px; font-variant-numeric: tabular-nums; text-align: right; color: #F4F1EC; }
+    .section-controls label { color: var(--ink); }
+    .section-controls input[type="range"] { width: 180px; accent-color: var(--gold-700); }
+    .section-controls output { min-width: 72px; font-variant-numeric: tabular-nums; text-align: right; color: var(--body); }
     .section-controls button {
-      font: 500 11px/1 var(--font-text); letter-spacing: .14em; text-transform: uppercase;
-      padding: 7px 10px; border: 1px solid var(--ls-line); border-radius: 2px; background: transparent; color: var(--ls-gold-light); cursor: pointer;
+      font: 500 13px/1 var(--sans); letter-spacing: .04em;
+      padding: 9px 16px; border-radius: var(--radius-pill); border: 1px solid var(--gold-700);
+      background: transparent; color: var(--gold-700); cursor: pointer;
     }
-    .section-controls button:hover { border-color: var(--ls-gold-light); }
+    .section-controls button:hover { background: var(--gold-700); color: var(--on-gold); }
 
-    /* Certificated legend */
+    /* Leyenda de certificados */
     #legend {
-      position: fixed; right: 20px; top: calc(56px + env(safe-area-inset-top, 0px)); z-index: 2;
-      display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 2px; font-size: 13px;
+      position: fixed; right: 32px; top: calc(92px + env(safe-area-inset-top, 0px)); z-index: 2;
+      display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: var(--radius-pill); font-size: 14px;
     }
     #legend.hidden { display: none; }
-    #legend .swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--ls-green-lit); box-shadow: 0 0 0 2px rgba(94, 158, 58, .25); }
-    #legend strong { font-weight: 600; font-variant-numeric: tabular-nums; }
+    #legend .swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--state-certified); }
+    #legend strong { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
 
-    /* Project title block, bottom right */
-    .title-block {
-      position: fixed; right: 20px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 2; pointer-events: none;
-      text-align: right;
+    /* Bloqueo de proyecto: sello Lifestyle, filete dorado, nombre corto, rótulo */
+    .project-lockup {
+      position: fixed; right: 32px; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); z-index: 2; pointer-events: none;
+      display: grid; justify-items: center; gap: 10px; width: 200px;
     }
-    .title-block h1 {
-      margin: 0; display: inline-block; padding: 0 0 0 28px; position: relative;
-      font-family: var(--font-title); font-weight: 400; font-size: 30px; letter-spacing: .08em; line-height: 1.1; color: #F4F1EC;
+    .project-lockup img { width: 156px; height: auto; display: block; }
+
+    /* Controles de vista: alternativa con clic/teclado a los gestos */
+    .view-tools {
+      position: fixed; left: 32px; top: calc(248px + env(safe-area-inset-top, 0px)); z-index: 2;
+      display: flex; flex-direction: column; gap: 8px;
     }
-    .title-block h1::after {
-      content: ''; position: absolute; left: 0; right: -20px; bottom: 4px; height: 12px; background: rgba(204, 204, 204, .22); z-index: -1;
+    .view-tools.hidden { display: none; }
+    .view-tools .section-btn { width: 40px; height: 40px; margin-left: 4px; }
+    .view-tools .section-btn:focus-visible { outline: 2px solid var(--gold-700); outline-offset: 2px; }
+    .project-lockup .rule { width: 156px; height: 1px; background: var(--gold-accent); }
+    .project-lockup .name { margin: 0; font-size: 18px; font-weight: 500; letter-spacing: .5em; margin-right: -.5em; color: var(--gold-700); }
+    .project-lockup .meta { margin: 0; color: var(--mute); font-size: 11px; }
+
+
+    /* Botones de marca */
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 12px 24px;
+      border-radius: var(--radius-pill); font: 600 15px/1.2 var(--sans); text-decoration: none; cursor: pointer;
+      transition: background-color .2s, color .2s;
     }
-    .title-block p { margin: 6px 0 0; font-size: 12px; letter-spacing: .24em; text-transform: uppercase; color: var(--ls-sand); }
+    .btn svg { flex: none; }
+    .btn small { font-weight: 400; font-size: 12px; opacity: .8; font-variant-numeric: tabular-nums; }
+    .btn-primary { background: var(--gold-700); color: var(--on-gold); border: 1px solid var(--gold-700); }
+    .btn-primary:hover { background: var(--gold-800); border-color: var(--gold-800); }
+    .btn-secondary { background: var(--paper-soft); color: var(--gold-700); border: 1px solid var(--gold-700); }
+    .btn-secondary:hover { background: var(--gold-700); color: var(--on-gold); }
+    .btn-sm { min-height: 40px; padding: 9px 18px; font-size: 14px; box-shadow: var(--shadow-warm); }
+    .btn:focus-visible { outline: 2px solid var(--gold-700); outline-offset: 2px; }
+
+    /* Acciones del visor, arriba a la derecha */
+    .top-actions {
+      position: fixed; right: 32px; top: calc(28px + env(safe-area-inset-top, 0px)); z-index: 2;
+      display: flex; gap: 12px; align-items: center;
+    }
+
+    /* Portada del proyecto */
+    .intro {
+      position: fixed; inset: 0; z-index: 10; background: var(--paper);
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px;
+      padding: calc(32px + env(safe-area-inset-top, 0px)) 48px calc(32px + env(safe-area-inset-bottom, 0px)) 32px;
+      overflow-y: auto; overscroll-behavior: contain;
+      transition: opacity .45s ease, visibility .45s;
+    }
+    .intro.is-closed { opacity: 0; visibility: hidden; }
+    .intro-media { margin: 0; position: relative; min-height: 0; }
+    .intro-media img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block;
+      border-radius: var(--radius-photo); box-shadow: var(--shadow-warm);
+    }
+    .legal { font-size: 11px; line-height: 1.5; color: var(--mute); }
+    .intro-media .legal {
+      position: absolute; left: 20px; bottom: 14px; margin: 0; color: #fff; font-style: italic; text-shadow: 0 1px 4px rgba(46, 43, 34, .6);
+    }
+    .intro-copy {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      gap: 28px; min-width: 0; padding-block: 16px;
+    }
+    .intro-brands { display: flex; flex-direction: column; align-items: center; gap: 28px; }
+    .intro-korn { width: min(260px, 60%); height: auto; }
+    .intro-seal { display: grid; justify-items: center; gap: 12px; }
+    .intro-seal img { width: 200px; height: auto; }
+    .intro-seal .rule, .intro-place .rule { width: 200px; height: 1px; background: var(--gold-accent); }
+    .intro-seal .name { margin: 0; font-size: 22px; font-weight: 500; letter-spacing: .5em; margin-right: -.5em; color: var(--gold-700); }
+    .intro-copy h1 {
+      margin: 0; font-size: 40px; line-height: 1.12; font-weight: 600; letter-spacing: .01em; color: var(--ink);
+      text-transform: uppercase; text-wrap: balance;
+    }
+    .intro-place { display: grid; justify-items: center; gap: 10px; margin-top: -12px; }
+    .intro-place p { margin: 0; color: var(--ink); }
+    .intro-place .rule { width: 120px; }
+    .intro-copy .lead { margin: 0; max-width: 34ch; font-size: 17px; line-height: 1.6; color: var(--body); }
+    .intro-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+    @media (prefers-reduced-motion: reduce) { .intro { transition: none; } }
+    @media (max-width: 640px) and (max-height: 700px) { .intro-copy .lead { display: none; } }
+    /* Celular apaisado: portada compacta en dos columnas */
+    @media (min-width: 641px) and (max-height: 520px) {
+      .intro { gap: 24px; padding: calc(12px + env(safe-area-inset-top, 0px)) 24px calc(12px + env(safe-area-inset-bottom, 0px)) 16px; }
+      .intro-copy { gap: 10px; padding-block: 0; }
+      .intro-brands { flex-direction: row; gap: 20px; }
+      .intro-korn { width: 120px; }
+      .intro-seal { gap: 4px; }
+      .intro-seal img, .intro-seal .rule { width: 90px; }
+      .intro-seal .name { font-size: 12px; }
+      .intro-copy h1 { font-size: 24px; }
+      .intro-place { margin-top: 0; gap: 4px; }
+      .intro-copy .lead { display: none; }
+      .intro-actions .btn { min-height: 44px; padding-block: 10px; }
+    }
 
     #hint {
-      position: fixed; left: 20px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 2;
-      font-size: 12px; letter-spacing: .06em; color: rgba(244, 241, 236, .62);
+      position: fixed; left: 32px; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); z-index: 2;
+      font-size: 13px; line-height: 1.5; color: var(--mute);
     }
 
-    /* Loading state */
+    /* Estado de carga */
     #status {
       position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3;
-      display: grid; justify-items: center; gap: 14px; text-align: center; max-width: calc(100% - 32px);
-      font-family: var(--font-title); font-size: 15px; letter-spacing: .26em; text-transform: uppercase; color: var(--ls-gold-light);
+      display: grid; justify-items: center; gap: 16px; text-align: center; max-width: calc(100% - 32px);
+      color: var(--gold-700);
     }
     #status::after {
-      content: ''; width: 180px; height: 1px; background: var(--ls-gold-gradient); background-size: 200% 100%;
-      animation: ls-shimmer 1.6s linear infinite;
+      content: ''; width: 160px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-accent), transparent); background-size: 200% 100%;
+      animation: korn-shimmer 1.6s linear infinite;
     }
     #status.hidden { display: none; }
-    #status.error { color: #F4F1EC; letter-spacing: .06em; text-transform: none; font-family: var(--font-text); }
+    #status.error { color: var(--body); letter-spacing: 0; text-transform: none; font-size: 15px; font-weight: 400; }
     #status.error::after { display: none; }
-    @keyframes ls-shimmer { from { background-position: 0 0; } to { background-position: 200% 0; } }
+    @keyframes korn-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
     @media (prefers-reduced-motion: reduce) { #status::after { animation: none; } }
 
     @media (max-width: 640px) {
-      .brand-logo { height: 48px; }
-      .brand-label { display: none; }
-      #legend { top: calc(20px + env(safe-area-inset-top, 0px)); right: 16px; }
-      #section-tools { left: 16px; top: calc(84px + env(safe-area-inset-top, 0px)); }
-      .section-controls { flex-wrap: wrap; max-width: calc(100vw - 88px); }
-      .section-controls input[type="range"] { width: 120px; }
-      .title-block h1 { font-size: 22px; }
+      .brand-bar { left: 16px; top: calc(16px + env(safe-area-inset-top, 0px)); }
+      .brand-logo { height: 40px; }
+      #legend { right: auto; left: 16px; top: auto; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); font-size: 13px; padding: 8px 14px; }
+      .top-actions { right: 16px; top: calc(16px + env(safe-area-inset-top, 0px)); gap: 8px; }
+      .top-actions .btn-sm { min-height: 40px; padding: 8px 14px; font-size: 13px; }
+      #open-intro { width: 40px; padding: 0; justify-content: center; }
+      #open-intro .btn-label { display: none; }
+      .intro-actions .btn small { white-space: nowrap; }
+      .intro-actions .btn { white-space: nowrap; }
+      .top-actions .label-long { display: none; }
+      /* Portada en celular: todo en una pantalla, sin desplazamiento */
+      .intro {
+        display: flex; flex-direction: column; gap: 14px;
+        padding: calc(12px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px));
+      }
+      .intro-media { flex: 1 1 auto; min-height: 120px; }
+      .intro-media img { height: 100%; }
+      .intro-media .legal { left: 14px; bottom: 10px; font-size: 10px; }
+      .intro-copy { flex: none; gap: 12px; padding-block: 0; }
+      .intro-brands { flex-direction: row; justify-content: center; gap: 20px; }
+      .intro-korn { width: 112px; }
+      .intro-seal { gap: 6px; }
+      .intro-seal img, .intro-seal .rule { width: 92px; }
+      .intro-seal .name { font-size: 12px; }
+      .intro-copy h1 { font-size: 24px; }
+      .intro-place { margin-top: -4px; gap: 6px; }
+      .intro-place .overline { font-size: 12px; }
+      .intro-place .rule { width: 80px; }
+      .intro-copy .lead { font-size: 14px; line-height: 1.45; }
+      .intro-actions { width: 100%; flex-direction: column; gap: 8px; }
+      .intro-actions .btn { width: 100%; justify-content: center; min-height: 44px; padding-block: 10px; }
+      /* Visor en celular: herramientas a la izquierda, paneles de corte abajo a todo el ancho */
+      #section-tools { left: 16px; top: calc(76px + env(safe-area-inset-top, 0px)); }
+      .view-tools { left: 16px; top: calc(196px + env(safe-area-inset-top, 0px)); }
+      .view-tools .section-btn { margin-left: 2px; }
+      .section-btn { width: 44px; height: 44px; }
+      .section-controls {
+        position: fixed; left: 16px; right: 16px; z-index: 3; gap: 10px; padding: 6px 6px 6px 16px;
+      }
+      .section-tool[data-axis="x"] .section-controls { bottom: calc(124px + env(safe-area-inset-bottom, 0px)); }
+      .section-tool[data-axis="y"] .section-controls { bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+      .section-controls label { font-size: 11px; letter-spacing: .12em; white-space: nowrap; }
+      .section-controls input[type="range"] { flex: 1 1 auto; width: auto; min-width: 0; }
+      .section-controls output { min-width: 0; font-size: 14px; white-space: nowrap; }
+      .section-controls button { padding: 9px 12px; font-size: 12px; }
+      .project-lockup { right: 16px; top: calc(68px + env(safe-area-inset-top, 0px)); bottom: auto; width: 96px; gap: 6px; }
+      .project-lockup img, .project-lockup .rule { width: 72px; }
+      .project-lockup .name { font-size: 11px; }
+      .project-lockup .meta { display: none; }
       #hint { display: none; }
     }
   </style>
@@ -153,50 +272,86 @@
   </script>
 </head>
 <body>
-  <div id="viewer"></div>
+  <div id="viewer" role="img" aria-label="Modelo 3D de la estructura de Ortega y Gasset 1957. Los elementos certificados se muestran en verde."></div>
   <header class="brand-bar">
-    <img class="brand-logo" src="assets/logo-lifestyle.svg" alt="Lifestyle Smart Investments">
-    <div class="brand-label">Visor BIM</div>
+    <img class="brand-logo" src="assets/korn-logo-dorado.svg" width="153" height="56" alt="Korn Desarrolla" translate="no">
   </header>
-  <div id="status">Cargando visor</div>
-  <div id="legend" class="glass hidden"><span class="swatch"></span><span id="legend-text"></span></div>
+  <section id="intro" class="intro" aria-labelledby="intro-title">
+    <figure class="intro-media">
+      <img src="assets/fachada-gasset.jpg" width="1520" height="2380" fetchpriority="high" decoding="async" alt="Render de la fachada del edificio Ortega y Gasset 1957, con balcones y vegetación sobre la vereda arbolada.">
+      <figcaption class="legal">*Imágenes meramente ilustrativas y referenciales.</figcaption>
+    </figure>
+    <div class="intro-copy">
+      <div class="intro-brands">
+        <img class="intro-korn" src="assets/korn-logo-dorado.svg" width="260" height="95" alt="Korn Desarrolla" translate="no">
+        <div class="intro-seal">
+          <img src="assets/lifestyle-sello.svg" width="200" height="135" alt="Lifestyle" translate="no">
+          <span class="rule" aria-hidden="true"></span>
+          <p class="name" translate="no">GASSET</p>
+        </div>
+      </div>
+      <h1 id="intro-title" translate="no">Ortega y Gasset 1957</h1>
+      <div class="intro-place">
+        <p class="overline">Las Cañitas</p>
+        <span class="rule" aria-hidden="true"></span>
+      </div>
+      <p class="lead">Explorá la estructura del edificio en 3D: recorrela con cortes en X e Y y seguí qué elementos ya están certificados.</p>
+      <div class="intro-actions">
+        <button type="button" class="btn btn-primary" id="intro-enter">Explorá el modelo 3D</button>
+        <a class="btn btn-secondary" href="assets/Ortega-y-Gasset-1957-Brochure.pdf" type="application/pdf" download="Ortega-y-Gasset-1957-Brochure.pdf"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5 12 15.5l5-5M5 19.5h14"/></svg>Descargá el brochure <small>PDF ·&nbsp;7&nbsp;MB</small></a>
+      </div>
+    </div>
+  </section>
+  <div class="top-actions">
+    <button type="button" class="btn btn-secondary btn-sm" id="open-intro" aria-label="Volver a la portada"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5M6.5 9.8V19h11V9.8"/></svg><span class="btn-label">Portada</span></button>
+    <a class="btn btn-primary btn-sm" href="assets/Ortega-y-Gasset-1957-Brochure.pdf" type="application/pdf" download="Ortega-y-Gasset-1957-Brochure.pdf"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5 12 15.5l5-5M5 19.5h14"/></svg><span>Brochure<span class="label-long"> del proyecto</span></span></a>
+  </div>
+  <div id="status" class="overline" role="status" aria-live="polite">Cargando visor…</div>
+  <div id="legend" class="card hidden"><span class="swatch" aria-hidden="true"></span><span id="legend-text"></span></div>
   <div id="section-tools" class="hidden">
     <div class="section-tool" data-axis="x">
-      <button type="button" class="section-btn" id="section-x-btn" aria-pressed="false" title="Corte en X" aria-label="Corte en X">
+      <button type="button" class="section-btn" id="section-x-btn" aria-pressed="false" aria-controls="section-x-panel" title="Corte en X" aria-label="Corte en X">
         <svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true">
           <circle cx="5.5" cy="21.5" r="3"/><circle cx="12.5" cy="24" r="3"/>
           <path d="M7.8 19.6 17 3.5M11 21.6 4 5.5"/>
-          <text x="21.5" y="25.5" font-size="12" font-family="'Book Antigua', 'Palatino Linotype', Palatino, 'EB Garamond', serif" fill="currentColor" stroke="none" text-anchor="middle">X</text>
+          <text x="21.5" y="25.5" font-size="12" font-family="Montserrat, system-ui, sans-serif" font-weight="600" fill="currentColor" stroke="none" text-anchor="middle">X</text>
         </svg>
       </button>
-      <div class="section-controls glass" hidden>
-        <label for="section-x-range">Corte X</label>
+      <div class="section-controls card" id="section-x-panel" hidden>
+        <label class="overline" for="section-x-range">Corte X</label>
         <input type="range" id="section-x-range" min="0" max="1" step="0.001" value="0.5">
         <output for="section-x-range" title="Distancia desde el borde del modelo"></output>
-        <button type="button" class="section-flip" title="Invertir el lado visible">Invertir</button>
+        <button type="button" class="section-flip" title="Invertir el lado visible" aria-label="Invertir el lado visible del corte X">Invertir</button>
       </div>
     </div>
     <div class="section-tool" data-axis="y">
-      <button type="button" class="section-btn" id="section-y-btn" aria-pressed="false" title="Corte en Y" aria-label="Corte en Y">
+      <button type="button" class="section-btn" id="section-y-btn" aria-pressed="false" aria-controls="section-y-panel" title="Corte en Y" aria-label="Corte en Y">
         <svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true">
           <circle cx="5.5" cy="21.5" r="3"/><circle cx="12.5" cy="24" r="3"/>
           <path d="M7.8 19.6 17 3.5M11 21.6 4 5.5"/>
-          <text x="21.5" y="25.5" font-size="12" font-family="'Book Antigua', 'Palatino Linotype', Palatino, 'EB Garamond', serif" fill="currentColor" stroke="none" text-anchor="middle">Y</text>
+          <text x="21.5" y="25.5" font-size="12" font-family="Montserrat, system-ui, sans-serif" font-weight="600" fill="currentColor" stroke="none" text-anchor="middle">Y</text>
         </svg>
       </button>
-      <div class="section-controls glass" hidden>
-        <label for="section-y-range">Corte Y</label>
+      <div class="section-controls card" id="section-y-panel" hidden>
+        <label class="overline" for="section-y-range">Corte Y</label>
         <input type="range" id="section-y-range" min="0" max="1" step="0.001" value="0.5">
         <output for="section-y-range" title="Distancia desde el borde del modelo"></output>
-        <button type="button" class="section-flip" title="Invertir el lado visible">Invertir</button>
+        <button type="button" class="section-flip" title="Invertir el lado visible" aria-label="Invertir el lado visible del corte Y">Invertir</button>
       </div>
     </div>
   </div>
-  <div class="title-block">
-    <h1>OyG</h1>
-    <p>Estructura · IFC4 · v5</p>
+  <div id="view-tools" class="view-tools hidden" role="group" aria-label="Vista">
+    <button type="button" class="section-btn" id="zoom-in" aria-label="Acercar" title="Acercar (+)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6v12M6 12h12"/></svg></button>
+    <button type="button" class="section-btn" id="zoom-out" aria-label="Alejar" title="Alejar (−)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+    <button type="button" class="section-btn" id="fit-view" aria-label="Encuadrar el modelo" title="Encuadrar (F)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
   </div>
-  <div id="hint">Arrastrar: orbitar · Clic derecho: desplazar · Rueda: zoom · F: encuadrar</div>
+  <div class="project-lockup">
+    <img src="assets/lifestyle-sello.svg" width="156" height="106" alt="Lifestyle" translate="no">
+    <span class="rule" aria-hidden="true"></span>
+    <p class="name" translate="no">GASSET</p>
+    <p class="meta overline">Estructura · IFC4 · v5</p>
+  </div>
+  <div id="hint">Arrastrá para orbitar · Clic derecho o flechas para desplazar · Rueda o +/− para acercar · F para encuadrar</div>
 
   <script type="module">
     import * as THREE from 'three';
@@ -210,8 +365,27 @@
 
     // Elements whose "Certificated" property is YES/TRUE are drawn in this color.
     const CERTIFIED_PROPERTY = 'Certificated';
-    // Lighter tint of the brand green (#1F4E13) so it reads against the blue ground.
-    const CERTIFIED_COLOR = { x: 0x5e / 255, y: 0x9e / 255, z: 0x3a / 255, w: 1 };
+    // Functional state colour (matches --state-certified); not a brand accent.
+    const CERTIFIED_COLOR = { x: 0x4e / 255, y: 0x8a / 255, z: 0x2e / 255, w: 1 };
+
+    // --- Portada ---------------------------------------------------------------
+    // Shown on load (skip it with #visor in the URL); the model keeps loading behind it.
+    const intro = document.getElementById('intro');
+    // Everything behind the cover is taken out of the tab order while it is open.
+    const behindIntro = ['viewer', 'section-tools', 'view-tools', 'legend'].map((id) => document.getElementById(id))
+      .concat([...document.querySelectorAll('.top-actions, .brand-bar, .project-lockup, #hint')]);
+    const setIntro = (open) => {
+      intro.classList.toggle('is-closed', !open);
+      intro.inert = !open;
+      behindIntro.forEach((el) => { el.inert = open; });
+      (open ? document.getElementById('intro-enter') : document.getElementById('open-intro')).focus({ preventScroll: true });
+    };
+    document.getElementById('intro-enter').addEventListener('click', () => setIntro(false));
+    document.getElementById('open-intro').addEventListener('click', () => setIntro(true));
+    if (location.hash === '#visor') setIntro(false); else behindIntro.forEach((el) => { el.inert = true; });
+    const isIntroOpen = () => !intro.classList.contains('is-closed');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const metres = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     const statusEl = document.getElementById('status');
     const setStatus = (text, isError = false) => {
@@ -226,6 +400,7 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(renderer.domElement);
+    renderer.domElement.setAttribute('aria-hidden', 'true');
 
     const scene = new THREE.Scene();
 
@@ -233,7 +408,7 @@
     camera.position.set(20, 15, 20);
 
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
+    controls.enableDamping = !reducedMotion;
 
     scene.add(new THREE.HemisphereLight(0xffffff, 0x888888, 1.6));
     const sun = new THREE.DirectionalLight(0xffffff, 1.4);
@@ -242,9 +417,9 @@
 
     renderer.localClippingEnabled = true;
 
-    const grid = new THREE.GridHelper(100, 50, 0x6c9cb0, 0x3f7690);
+    const grid = new THREE.GridHelper(100, 25, 0xd4c3a0, 0xe1d6bf);
     grid.material.transparent = true;
-    grid.material.opacity = 0.35;
+    grid.material.opacity = 0.7;
     scene.add(grid);
 
     window.addEventListener('resize', () => {
@@ -261,17 +436,17 @@
     // --- IFC loading ---------------------------------------------------------
     // web-ifc outputs Y-up geometry; meshes are merged per color to keep draw calls low.
     async function loadIfc(url) {
-      setStatus('Iniciando motor IFC');
+      setStatus('Iniciando motor IFC…');
       const ifcApi = new IfcAPI();
       ifcApi.SetWasmPath(WEB_IFC_WASM_PATH, true);
       await ifcApi.Init();
 
-      setStatus('Descargando modelo');
+      setStatus('Descargando modelo…');
       const response = await fetch(url);
-      if (!response.ok) throw new Error(`No se pudo descargar el modelo (${url}, HTTP ${response.status}).`);
+      if (!response.ok) throw new Error(`No se pudo descargar el modelo (${url}, HTTP ${response.status}). Recargá la página para reintentar.`);
       const data = new Uint8Array(await response.arrayBuffer());
 
-      setStatus('Procesando geometría');
+      setStatus('Procesando geometría…');
       const modelID = ifcApi.OpenModel(data, { COORDINATE_TO_ORIGIN: true });
       const certified = findCertifiedElements(ifcApi, modelID);
       const byColor = new Map();
@@ -378,7 +553,9 @@
           // (geometry is shifted to the origin on load, so absolute coordinates differ).
           const t = Number(range.value);
           const pos = section.min + (section.max - section.min) * t;
-          output.textContent = `${(pos - section.min).toFixed(2)} m`;
+          const label = `${metres.format(pos - section.min)} m`;
+          output.textContent = label;
+          range.setAttribute('aria-valuetext', `${label} desde el borde del modelo`);
           // Scene coordinate of the cut: IFC X -> scene x, IFC Y -> scene -z.
           const point = axis === 'x' ? new THREE.Vector3(pos, 0, 0) : new THREE.Vector3(0, 0, -pos);
           const normal = section.normal.clone().multiplyScalar(section.flipped ? -1 : 1);
@@ -424,10 +601,42 @@
       scene.add(model);
       fitToModel(model);
       setupSectionTools(model);
-      window.addEventListener('keydown', (e) => { if (e.key === 'f' || e.key === 'F') fitToModel(model); });
+      const zoomBy = (factor) => {
+        const offset = camera.position.clone().sub(controls.target).multiplyScalar(factor);
+        camera.position.copy(controls.target).add(offset);
+        controls.update();
+      };
+      document.getElementById('zoom-in').addEventListener('click', () => zoomBy(0.8));
+      document.getElementById('zoom-out').addEventListener('click', () => zoomBy(1.25));
+      document.getElementById('fit-view').addEventListener('click', () => fitToModel(model));
+      document.getElementById('view-tools').classList.remove('hidden');
+      const panBy = (dx, dy) => {
+        // Move camera and target together along the screen axes, scaled to the view distance.
+        const step = camera.position.distanceTo(controls.target) * 0.05;
+        const right = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 0).multiplyScalar(dx * step);
+        const up = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 1).multiplyScalar(dy * step);
+        const delta = right.add(up);
+        camera.position.add(delta);
+        controls.target.add(delta);
+        controls.update();
+      };
+      const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] };
+      window.addEventListener('keydown', (e) => {
+        if (isIntroOpen() || e.ctrlKey || e.metaKey || e.altKey) return;
+        // Leave keys to the focused control (e.g. arrows move a cut slider).
+        if (e.target.closest?.('input, button, a, textarea, select')) {
+          if (e.key in arrows || e.target.matches('input')) return;
+        }
+        if (e.key in arrows) { e.preventDefault(); panBy(...arrows[e.key]); }
+        else if (e.key === 'f' || e.key === 'F') fitToModel(model);
+        else if (e.key === '+' || e.key === '=') zoomBy(0.8);
+        else if (e.key === '-' || e.key === '_') zoomBy(1.25);
+      });
       const legendEl = document.getElementById('legend');
       const n = model.userData.certifiedCount;
-      document.getElementById('legend-text').innerHTML = `Certificado · <strong>${n}</strong> ${n === 1 ? 'elemento' : 'elementos'}`;
+      const count = document.createElement('strong');
+      count.textContent = String(n);
+      document.getElementById('legend-text').replaceChildren('Certificado · ', count, ` ${n === 1 ? 'elemento' : 'elementos'}`);
       legendEl.classList.remove('hidden');
       setStatus('');
     } catch (err) {
