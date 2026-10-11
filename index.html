@@ -127,11 +127,75 @@
     .btn-sm { min-height: 40px; padding: 9px 18px; font-size: 14px; box-shadow: var(--shadow-warm); }
     .btn:focus-visible { outline: 2px solid var(--gold-700); outline-offset: 2px; }
 
-    /* Acciones del visor, arriba a la derecha */
-    .top-actions {
-      position: fixed; right: 32px; top: calc(28px + env(safe-area-inset-top, 0px)); z-index: 2;
-      display: flex; gap: 12px; align-items: center;
+    /* Pestañas: Inicio · Visor 3D · Novedades · Brochure */
+    .site-nav {
+      position: fixed; right: 32px; top: calc(24px + env(safe-area-inset-top, 0px)); z-index: 12;
+      display: flex; gap: 4px; padding: 4px; border-radius: var(--radius-pill);
+      background: var(--paper-soft); border: 1px solid var(--hairline); box-shadow: var(--shadow-warm);
     }
+    .site-nav[hidden] { display: none; }
+    .nav-tab {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; min-width: 40px; padding: 8px 16px;
+      border-radius: var(--radius-pill); color: var(--gold-700); font: 600 14px/1 var(--sans); text-decoration: none;
+      transition: background-color .2s, color .2s;
+    }
+    .nav-tab svg { flex: none; }
+    .nav-tab:hover { background: rgba(138, 105, 33, .10); }
+    .nav-tab[aria-current="page"] { background: var(--gold-700); color: var(--on-gold); }
+    .nav-tab:focus-visible { outline: 2px solid var(--gold-700); outline-offset: 2px; }
+
+    /* Vistas a pantalla completa sobre el visor (Novedades, documento) */
+    .overlay {
+      position: fixed; inset: 0; z-index: 10; background: var(--paper);
+      overflow-y: auto; overscroll-behavior: contain;
+      transition: opacity .3s ease, visibility 0s;
+    }
+    .overlay.is-closed { opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s .3s; }
+    @media (prefers-reduced-motion: reduce) { .overlay { transition: none; } }
+
+    /* Novedades */
+    .news-view { padding: calc(120px + env(safe-area-inset-top, 0px)) 32px calc(48px + env(safe-area-inset-bottom, 0px)); }
+    .news-korn { position: absolute; left: 32px; top: calc(24px + env(safe-area-inset-top, 0px)); height: 56px; width: auto; }
+    .news-inner { max-width: 1040px; margin: 0 auto; display: grid; gap: 16px; }
+    .news-inner .overline { margin: 0; color: var(--mute); }
+    .news-inner h2 { margin: 0; font-size: 40px; line-height: 1.12; font-weight: 600; color: var(--ink); scroll-margin-top: 96px; }
+    .news-inner h2:focus { outline: none; }
+    .news-inner .rule { width: 120px; height: 1px; background: var(--gold-accent); }
+    .news-intro { margin: 0 0 16px; max-width: 60ch; font-size: 17px; line-height: 1.6; color: var(--body); }
+    .news-list {
+      list-style: none; margin: 0; padding: 0; display: grid; gap: 24px;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr));
+    }
+    .news-card {
+      display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 24px; align-items: center; padding: 16px;
+      border-radius: var(--radius-photo); background: var(--paper-soft); border: 1px solid var(--hairline); box-shadow: var(--shadow-warm);
+      color: var(--body); text-decoration: none; transition: border-color .2s;
+    }
+    .news-card:hover { border-color: var(--gold-500); }
+    .news-card:focus-visible { outline: 2px solid var(--gold-700); outline-offset: 2px; }
+    .news-card img { width: 148px; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: top; border-radius: 16px; display: block; }
+    .news-card h3 { margin: 4px 0 8px; font-size: 22px; line-height: 1.2; font-weight: 600; color: var(--ink); }
+    .news-summary {
+      margin: 0; font-size: 15px; line-height: 1.6;
+      display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .news-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; color: var(--gold-700); font-weight: 600; font-size: 14px; }
+    .news-empty { margin: 0; color: var(--mute); }
+
+    /* Visor de documentos (PDF en el navegador) */
+    .doc-view { padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px)); }
+    .doc-bar {
+      position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 16px;
+      padding: calc(16px + env(safe-area-inset-top, 0px)) 32px 16px; background: var(--paper); border-bottom: 1px solid var(--hairline);
+    }
+    .doc-heading { flex: 1; min-width: 0; text-align: center; }
+    .doc-heading .overline { margin: 0; color: var(--mute); }
+    .doc-heading h2 { margin: 2px 0 0; font-size: 20px; line-height: 1.25; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .doc-heading h2:focus { outline: none; }
+    .doc-pages { display: grid; justify-items: center; gap: 16px; padding: 24px 16px 0; }
+    .doc-page { width: min(900px, 100%); margin: 0; background: var(--paper-soft); border-radius: 8px; box-shadow: var(--shadow-warm); overflow: hidden; }
+    .doc-page canvas { display: block; width: 100%; height: 100%; }
+    .doc-status { margin: 24px 0 0; text-align: center; color: var(--mute); }
 
     /* Portada del proyecto */
     .intro {
@@ -139,9 +203,9 @@
       display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px;
       padding: calc(32px + env(safe-area-inset-top, 0px)) 48px calc(32px + env(safe-area-inset-bottom, 0px)) 32px;
       overflow-y: auto; overscroll-behavior: contain;
-      transition: opacity .45s ease, visibility .45s;
+      transition: opacity .45s ease, visibility 0s;
     }
-    .intro.is-closed { opacity: 0; visibility: hidden; }
+    .intro.is-closed { opacity: 0; visibility: hidden; transition: opacity .45s ease, visibility 0s .45s; }
     .intro-media { margin: 0; position: relative; min-height: 0; }
     .intro-media img {
       width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block;
@@ -170,6 +234,9 @@
     .intro-place .rule { width: 120px; }
     .intro-copy .lead { margin: 0; max-width: 34ch; font-size: 17px; line-height: 1.6; color: var(--body); }
     .intro-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+    .intro-more { color: var(--gold-700); font-weight: 600; font-size: 15px; text-decoration: none; padding: 6px 4px; border-radius: 4px; }
+    .intro-more:hover { text-decoration: underline; text-underline-offset: 4px; }
+    .intro-more:focus-visible { outline: 2px solid var(--gold-700); outline-offset: 2px; }
     @media (prefers-reduced-motion: reduce) { .intro { transition: none; } }
     @media (max-width: 640px) and (max-height: 700px) { .intro-copy .lead { display: none; } }
     /* Celular apaisado: portada compacta en dos columnas */
@@ -216,13 +283,28 @@
       .brand-bar { left: 16px; top: calc(16px + env(safe-area-inset-top, 0px)); }
       .brand-logo { height: 36px; }
       #legend { right: auto; left: 16px; top: auto; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); font-size: 13px; padding: 8px 14px; }
-      .top-actions { right: 16px; top: calc(16px + env(safe-area-inset-top, 0px)); gap: 8px; }
-      .top-actions .btn-sm { min-height: 40px; padding: 8px 14px; font-size: 13px; }
-      #open-intro { width: 40px; padding: 0; justify-content: center; }
-      #open-intro .btn-label { display: none; }
+      /* Pestañas solo con ícono; la pestaña actual se oculta para ganar espacio */
+      .site-nav { right: 16px; top: calc(14px + env(safe-area-inset-top, 0px)); gap: 2px; padding: 2px; }
+      .nav-tab { padding: 0; width: 40px; }
+      .nav-tab .nav-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      .nav-tab[aria-current="page"] { display: none; }
+      .news-view { padding: calc(80px + env(safe-area-inset-top, 0px)) 16px calc(32px + env(safe-area-inset-bottom, 0px)); }
+      .news-korn { left: 16px; top: calc(16px + env(safe-area-inset-top, 0px)); height: 36px; }
+      .news-inner h2 { font-size: 30px; }
+      .news-intro { font-size: 15px; margin-bottom: 8px; }
+      .news-card { grid-template-columns: 92px minmax(0, 1fr); gap: 16px; padding: 12px; }
+      .news-card img { width: 92px; border-radius: 12px; }
+      .news-card h3 { font-size: 18px; }
+      .news-summary { font-size: 14px; -webkit-line-clamp: 3; }
+      .doc-bar { gap: 8px; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px; }
+      .doc-bar .btn-sm { padding: 8px 12px; font-size: 13px; }
+      .doc-heading .overline { display: none; }
+      .doc-heading h2 { font-size: 14px; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-wrap: balance; }
+      #doc-open { width: 40px; padding: 0; justify-content: center; }
+      #doc-open span { display: none; }
+      .doc-pages { gap: 12px; padding: 12px 8px 0; }
       .intro-actions .btn small { white-space: nowrap; }
       .intro-actions .btn { white-space: nowrap; }
-      .top-actions .label-long { display: none; }
       /* Portada en celular: todo en una pantalla, sin desplazamiento */
       .intro {
         display: flex; flex-direction: column; gap: 14px;
@@ -246,6 +328,7 @@
       .intro-place .rule { width: 80px; }
       .intro-copy .lead { font-size: 14px; line-height: 1.45; }
       .intro-actions { width: 100%; flex-direction: column; gap: 8px; }
+      .intro-more { font-size: 14px; }
       .intro-actions .btn { width: 100%; justify-content: center; min-height: 44px; padding-block: 10px; }
       /* Visor en celular: herramientas a la izquierda, paneles de corte abajo a todo el ancho */
       #section-tools { left: 16px; top: calc(76px + env(safe-area-inset-top, 0px)); }
@@ -272,22 +355,20 @@
       .project-lockup .meta { display: none; }
       #hint { display: none; }
     }
-    @media (max-width: 370px) {
-      .top-actions { gap: 6px; }
-      .top-actions .btn-sm { padding-inline: 10px; gap: 6px; }
-    }
   </style>
   <script type="importmap">
     {
       "imports": {
         "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
         "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
-        "web-ifc": "https://cdn.jsdelivr.net/npm/web-ifc@0.0.78/web-ifc-api.js"
+        "web-ifc": "https://cdn.jsdelivr.net/npm/web-ifc@0.0.78/web-ifc-api.js",
+        "pdfjs-dist": "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.3.289/legacy/build/pdf.min.mjs"
       }
     }
   </script>
 </head>
 <body>
+  <h2 id="viewer-heading" class="visually-hidden" tabindex="-1">Visor 3D de la estructura</h2>
   <div id="viewer" role="img" aria-label="Modelo 3D de la estructura de Ortega y Gasset 1957. Los elementos certificados se muestran en verde."></div>
   <header class="brand-bar">
     <img class="brand-logo" src="assets/korn-logo-dorado.svg" width="153" height="56" alt="Korn Desarrolla" translate="no">
@@ -313,15 +394,41 @@
       </div>
       <p class="lead">Explorá la estructura del edificio en 3D: recorrela con cortes en X e Y y seguí qué elementos ya están certificados.</p>
       <div class="intro-actions">
-        <button type="button" class="btn btn-primary" id="intro-enter">Explorá el modelo 3D</button>
-        <a class="btn btn-secondary" href="assets/Ortega-y-Gasset-1957-Brochure.pdf" type="application/pdf" download="Ortega-y-Gasset-1957-Brochure.pdf"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5 12 15.5l5-5M5 19.5h14"/></svg>Descargá el brochure <small>PDF ·&nbsp;7&nbsp;MB</small></a>
+        <a class="btn btn-primary" id="intro-enter" href="#visor">Explorá el modelo 3D</a>
+        <a class="btn btn-secondary" href="#brochure"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h7l4 4V20.5H7zM14 3.5v4h4M9.5 12.5h6M9.5 16h4"/></svg>Ver el brochure</a>
       </div>
+      <a class="intro-more" href="#novedades">Novedades de obra <span aria-hidden="true">→</span></a>
     </div>
   </section>
-  <div class="top-actions">
-    <button type="button" class="btn btn-secondary btn-sm" id="open-intro" aria-label="Volver a la portada"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5M6.5 9.8V19h11V9.8"/></svg><span class="btn-label">Portada</span></button>
-    <a class="btn btn-primary btn-sm" href="assets/Ortega-y-Gasset-1957-Brochure.pdf" type="application/pdf" download="Ortega-y-Gasset-1957-Brochure.pdf"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5 12 15.5l5-5M5 19.5h14"/></svg><span>Brochure<span class="label-long"> del proyecto</span></span></a>
-  </div>
+  <nav class="site-nav" id="site-nav" aria-label="Secciones" hidden>
+    <a class="nav-tab" href="#inicio" data-view="intro"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5M6.5 9.8V19h11V9.8"/></svg><span class="nav-label">Inicio</span></a>
+    <a class="nav-tab" href="#visor" data-view="visor"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 20 8v8l-8 4.5L4 16V8zM4 8l8 4.5L20 8M12 12.5v8"/></svg><span class="nav-label">Visor 3D</span></a>
+    <a class="nav-tab" href="#novedades" data-view="novedades"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6.5h15v13h-15zM4.5 10.5h15M8.5 4v4M15.5 4v4M8.5 15l2 2 4-4"/></svg><span class="nav-label">Novedades</span></a>
+    <a class="nav-tab" href="#brochure" data-view="doc"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5zM12 6.5v13"/></svg><span class="nav-label">Brochure</span></a>
+  </nav>
+  <section id="novedades" class="overlay news-view is-closed" aria-labelledby="news-title">
+    <img class="news-korn" src="assets/korn-logo-dorado.svg" width="153" height="56" alt="Korn Desarrolla" translate="no">
+    <div class="news-inner">
+      <p class="overline" translate="no">Ortega y Gasset 1957</p>
+      <h2 id="news-title" tabindex="-1">Novedades</h2>
+      <span class="rule" aria-hidden="true"></span>
+      <p class="news-intro">Seguí el avance de obra mes a mes. Tocá un informe para verlo completo.</p>
+      <ol class="news-list" id="news-list" aria-busy="true"></ol>
+      <p class="news-empty" id="news-empty" role="status" hidden></p>
+    </div>
+  </section>
+  <section id="doc" class="overlay doc-view is-closed" aria-labelledby="doc-title">
+    <div class="doc-bar">
+      <a class="btn btn-secondary btn-sm" id="doc-back" href="#novedades"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5.5 8.5 12l6.5 6.5"/></svg>Volver</a>
+      <div class="doc-heading">
+        <p class="overline" id="doc-kicker" translate="no"></p>
+        <h2 id="doc-title" tabindex="-1"></h2>
+      </div>
+      <a class="btn btn-primary btn-sm" id="doc-open" href="#" target="_blank" rel="noopener" aria-label="Abrir PDF en otra pestaña"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4.5h5.5V10M19.5 4.5 11 13M17 13.5v5.5H5V7h5.5"/></svg><span>Abrir PDF</span></a>
+    </div>
+    <div class="doc-pages" id="doc-pages"></div>
+    <p class="doc-status" id="doc-status" role="status" aria-live="polite"></p>
+  </section>
   <div id="status" class="overline" role="status" aria-live="polite">Cargando visor…</div>
   <div id="legend" class="card hidden"><span class="swatch" aria-hidden="true"></span><span id="legend-text"></span></div>
   <div id="section-tools" class="hidden">
@@ -384,24 +491,186 @@
     // Functional state colour (matches --state-certified); not a brand accent.
     const CERTIFIED_COLOR = { x: 0x4e / 255, y: 0x8a / 255, z: 0x2e / 255, w: 1 };
 
-    // --- Portada ---------------------------------------------------------------
-    // Shown on load (skip it with #visor in the URL); the model keeps loading behind it.
+    // --- Vistas y pestañas --------------------------------------------------------
+    // The URL hash is the state: #inicio (default), #visor, #novedades,
+    // #novedades/<id> (a progress report) and #brochure. Links drive navigation.
+    const BROCHURE = { kicker: 'Ortega y Gasset 1957', title: 'Brochure comercial', file: 'assets/Ortega-y-Gasset-1957-Brochure.pdf', back: '#inicio' };
+    const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.3.289/';
     const intro = document.getElementById('intro');
-    // Everything behind the cover is taken out of the tab order while it is open.
-    const behindIntro = ['viewer', 'section-tools', 'view-tools', 'legend'].map((id) => document.getElementById(id))
-      .concat([...document.querySelectorAll('.top-actions, .brand-bar, .project-lockup, #hint')]);
-    const setIntro = (open) => {
-      intro.classList.toggle('is-closed', !open);
-      intro.inert = !open;
-      behindIntro.forEach((el) => { el.inert = open; });
-      (open ? document.getElementById('intro-enter') : document.getElementById('open-intro')).focus({ preventScroll: true });
-    };
-    document.getElementById('intro-enter').addEventListener('click', () => setIntro(false));
-    document.getElementById('open-intro').addEventListener('click', () => setIntro(true));
-    if (location.hash === '#visor') setIntro(false); else behindIntro.forEach((el) => { el.inert = true; });
-    const isIntroOpen = () => !intro.classList.contains('is-closed');
+    const newsView = document.getElementById('novedades');
+    const docView = document.getElementById('doc');
+    const nav = document.getElementById('site-nav');
+    const viewerUi = ['viewer', 'section-tools', 'view-tools', 'legend'].map((id) => document.getElementById(id))
+      .concat([...document.querySelectorAll('.brand-bar, .project-lockup, #hint')]);
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const metres = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const monthYear = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    let currentView = 'intro';
+    const isIntroOpen = () => currentView !== 'visor';
+
+    const setOpen = (el, open) => { el.classList.toggle('is-closed', !open); el.inert = !open; };
+    function showView(view, focusTarget) {
+      currentView = view;
+      setOpen(intro, view === 'intro');
+      setOpen(newsView, view === 'novedades');
+      setOpen(docView, view === 'doc');
+      viewerUi.forEach((el) => { el.inert = view !== 'visor'; });
+      nav.hidden = view === 'intro' || view === 'doc';
+      nav.inert = nav.hidden;
+      for (const tab of nav.querySelectorAll('.nav-tab')) {
+        if (tab.dataset.view === view) tab.setAttribute('aria-current', 'page'); else tab.removeAttribute('aria-current');
+      }
+      if (focusTarget) requestAnimationFrame(() => focusTarget.focus({ preventScroll: true }));
+    }
+
+    // Novedades: list read from novedades/novedades.json (newest first).
+    let newsItems = null;
+    async function loadNews() {
+      if (newsItems) return newsItems;
+      const list = document.getElementById('news-list');
+      const empty = document.getElementById('news-empty');
+      try {
+        const res = await fetch('novedades/novedades.json', { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        newsItems = await res.json();
+      } catch (err) {
+        console.error(err);
+        empty.textContent = 'No se pudieron cargar las novedades. Recargá la página para reintentar.';
+        empty.hidden = false;
+        list.removeAttribute('aria-busy');
+        return [];
+      }
+      list.replaceChildren(...newsItems.map((item) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.className = 'news-card';
+        a.href = `#novedades/${encodeURIComponent(item.id)}`;
+        if (item.portada) {
+          const img = document.createElement('img');
+          img.src = item.portada; img.width = 148; img.height = 185; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+          a.append(img);
+        }
+        const body = document.createElement('div');
+        const kicker = document.createElement('p');
+        kicker.className = 'overline';
+        kicker.textContent = formatMonth(item.fecha);
+        const h3 = document.createElement('h3');
+        h3.textContent = item.titulo || item.tipo || 'Novedad';
+        body.append(kicker, h3);
+        if (item.resumen) {
+          const p = document.createElement('p');
+          p.className = 'news-summary';
+          p.textContent = item.resumen;
+          body.append(p);
+        }
+        const cta = document.createElement('span');
+        cta.className = 'news-cta';
+        cta.textContent = item.paginas ? `Ver informe · ${item.paginas} páginas` : 'Ver informe';
+        body.append(cta);
+        a.append(body);
+        li.append(a);
+        return li;
+      }));
+      list.removeAttribute('aria-busy');
+      if (!newsItems.length) { empty.textContent = 'Todavía no hay novedades publicadas.'; empty.hidden = false; }
+      return newsItems;
+    }
+    function formatMonth(value) {
+      const m = /^(\d{4})-(\d{2})$/.exec(value || '');
+      if (!m) return value || '';
+      return monthYear.format(new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, 1)));
+    }
+
+    // PDF viewer: pages rendered on demand with PDF.js, so it also works on phones,
+    // where browsers do not show PDFs inline.
+    const pagesEl = document.getElementById('doc-pages');
+    const docStatus = document.getElementById('doc-status');
+    let pdfjsLib = null;
+    let openDoc = { file: null, task: null, observer: null };
+    async function showDocument({ kicker, title, file, back }) {
+      document.getElementById('doc-kicker').textContent = kicker;
+      document.getElementById('doc-title').textContent = title;
+      document.getElementById('doc-back').href = back;
+      document.getElementById('doc-open').href = file;
+      showView('doc', document.getElementById('doc-title'));
+      if (openDoc.file === file) return;
+      openDoc.observer?.disconnect();
+      openDoc.task?.destroy();
+      openDoc = { file, task: null, observer: null };
+      pagesEl.replaceChildren();
+      docView.scrollTo(0, 0);
+      docStatus.textContent = 'Cargando documento…';
+      try {
+        if (!pdfjsLib) {
+          pdfjsLib = await import('pdfjs-dist');
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `${PDFJS_CDN}legacy/build/pdf.worker.min.mjs`;
+        }
+        const task = pdfjsLib.getDocument({
+          url: file,
+          cMapUrl: `${PDFJS_CDN}cmaps/`,
+          standardFontDataUrl: `${PDFJS_CDN}standard_fonts/`,
+          disableAutoFetch: true,
+        });
+        openDoc.task = task;
+        const pdf = await task.promise;
+        if (openDoc.file !== file) return;
+        const base = (await pdf.getPage(1)).getViewport({ scale: 1 });
+        const frames = [];
+        for (let n = 1; n <= pdf.numPages; n++) {
+          const fig = document.createElement('figure');
+          fig.className = 'doc-page';
+          fig.style.aspectRatio = `${base.width} / ${base.height}`;
+          fig.dataset.page = String(n);
+          const canvas = document.createElement('canvas');
+          canvas.setAttribute('role', 'img');
+          canvas.setAttribute('aria-label', `Página ${n} de ${pdf.numPages}`);
+          fig.append(canvas);
+          frames.push(fig);
+        }
+        pagesEl.replaceChildren(...frames);
+        docStatus.textContent = `${pdf.numPages} páginas`;
+        const render = async (fig) => {
+          if (fig.dataset.rendered) return;
+          fig.dataset.rendered = '1';
+          const page = await pdf.getPage(Number(fig.dataset.page));
+          const canvas = fig.firstChild;
+          const cssWidth = fig.clientWidth || 900;
+          const scale = Math.min(cssWidth * Math.min(window.devicePixelRatio || 1, 2) / page.getViewport({ scale: 1 }).width, 3);
+          const viewport = page.getViewport({ scale });
+          canvas.width = Math.floor(viewport.width);
+          canvas.height = Math.floor(viewport.height);
+          await page.render({ canvas, viewport }).promise;
+        };
+        openDoc.observer = new IntersectionObserver((entries) => {
+          for (const e of entries) if (e.isIntersecting) render(e.target).catch((err) => console.error(err));
+        }, { root: docView, rootMargin: '800px 0px' });
+        frames.forEach((f) => openDoc.observer.observe(f));
+      } catch (err) {
+        if (openDoc.file !== file) return;
+        console.error(err);
+        openDoc.file = null;
+        docStatus.textContent = 'No se pudo mostrar el documento acá. Usá “Abrir PDF” para verlo en otra pestaña.';
+      }
+    }
+
+    async function route() {
+      const hash = decodeURIComponent(location.hash.replace(/^#/, ''));
+      if (hash === 'visor') return showView('visor', document.getElementById('viewer-heading'));
+      if (hash === 'novedades') {
+        showView('novedades', document.getElementById('news-title'));
+        return loadNews();
+      }
+      if (hash.startsWith('novedades/')) {
+        const items = await loadNews();
+        const item = items.find((i) => i.id === hash.slice('novedades/'.length));
+        if (!item) { location.replace('#novedades'); return; }
+        return showDocument({ kicker: 'Ortega y Gasset 1957', title: `${item.titulo || item.tipo || 'Novedad'} · ${formatMonth(item.fecha)}`, file: item.archivo, back: '#novedades' });
+      }
+      if (hash === 'brochure') return showDocument(BROCHURE);
+      return showView('intro', hash ? document.getElementById('intro-enter') : null);
+    }
+    window.addEventListener('hashchange', route);
+    route();
 
     const statusEl = document.getElementById('status');
     const setStatus = (text, isError = false) => {
