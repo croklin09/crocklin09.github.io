@@ -51,7 +51,7 @@
       ],
     },
     steps: [
-      { icon: 'download', title: 'Descargá la app', text: 'Buscala como Hipcam en App Store o Google Play.' },
+      { icon: 'download', title: 'Descargá la app', text: 'Buscala como Hipcam en App Store o Google Play.', link: { href: 'https://app.hipcam.com/', label: 'Descargar Hipcam' } },
       { icon: 'mail', title: 'Abrí la invitación', text: 'Vas a recibir un correo de la administración. Tocá “Aceptar invitación” o ingresá con las credenciales del correo.' },
       { icon: 'check', title: 'Confirmá tu correo', text: 'Será tu usuario principal. Podés mantenerlo o cambiarlo por el que prefieras.' },
       { icon: 'key', title: 'Elegí tu contraseña', text: 'Reemplazá la contraseña temporal por una propia de al menos 8 caracteres.' },
@@ -174,7 +174,11 @@
           <li key=${s.title}>
             <span class="mu-num" aria-hidden="true">${num(i + 1)}</span>
             <span class="mu-ring"><${Icon} name=${s.icon} /></span>
-            <div><h4>${s.title}</h4><p class="mu-text">${s.text}</p></div>
+            <div>
+              <h4>${s.title}</h4><p class="mu-text">${s.text}</p>
+              ${s.link && html`<a class="btn btn-primary btn-sm mu-step-link" href=${s.link.href} target="_blank" rel="noopener">
+                <${Icon} name="download" size=${18} />${s.link.label}<span class="visually-hidden"> (se abre en otra pestaña)</span></a>`}
+            </div>
           </li>`)}
       </ol>
       <aside class="mu-callout">
