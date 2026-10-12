@@ -694,6 +694,11 @@
         return showView('manual', document.getElementById('manual-title'));
       }
       if (hash === 'manual-pdf') return showDocument(MANUAL);
+      if (hash.startsWith('manual-doc/')) {
+        const doc = window.KornManual?.docs[hash.slice('manual-doc/'.length)];
+        if (!doc) { location.replace('#manual'); return; }
+        return showDocument({ kicker: 'Manual de usuario', title: doc.title, file: doc.file, back: '#manual' });
+      }
       return showView('intro', hash ? document.getElementById('intro-enter') : null);
     }
     window.addEventListener('hashchange', route);

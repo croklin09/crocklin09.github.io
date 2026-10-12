@@ -19,8 +19,9 @@
         'En planta baja: el pasaje de ingreso.',
         'En el 10º piso: piscina, solárium, huerta, baño, área de descanso y sala de tanques.',
       ] },
-      { icon: 'elevator', title: 'Ascensor', items: [
-        'Ascensor con carga útil de 450 kg y variador de frecuencia de última generación.',
+      { icon: 'elevator', title: 'Ascensor', doc: 'ascensor', items: [
+        'Ascensor Hyundai YZER I, sin sala de máquinas.',
+        'Carga útil de 450 kg y variador de frecuencia de última generación.',
       ] },
       { icon: 'drop', title: 'Instalación sanitaria', items: [
         'En el subsuelo están los equipos de elevación y presurización de agua.',
@@ -38,6 +39,14 @@
         'SUM, gimnasio, piscina, solárium, quincho, laundry y bicicleteros.',
         'Su uso se rige por el reglamento interno del edificio.',
       ] },
+    ],
+    equipment: [
+      { icon: 'snow', title: 'Aire acondicionado', doc: 'aire', model: 'Samsung · AJ***NBTDEH',
+        text: 'Uso del control remoto, modos de funcionamiento, limpieza de filtros y solución de problemas.' },
+      { icon: 'hood', title: 'Campana de cocina', doc: 'campana', model: 'Samsung · NK24M5070 / NK36M5070',
+        text: 'Uso de los controles, iluminación, limpieza y cambio de filtros.' },
+      { icon: 'elevator', title: 'Ascensor', doc: 'ascensor', model: 'Hyundai · YZER I',
+        text: 'Características del equipo instalado en el edificio, según el folleto del fabricante.' },
     ],
     security: {
       intro: 'El edificio cuenta con el sistema de control de accesos Hipcam All in One, integrado con equipos Hikvision. Desde la app Hipcam, cada residente gestiona el ingreso al edificio, las visitas, las cámaras y las alertas de seguridad desde su celular.',
@@ -69,8 +78,16 @@
     help: { hipcamManualUrl: null, videoUrl: null },
   };
 
+  // Manufacturer documents, opened in the page's PDF viewer via #manual-doc/<id>.
+  const DOCS = {
+    ascensor: { title: 'Ascensor Hyundai YZER I', file: 'assets/manuales/ascensor-hyundai-yzer-i.pdf', kind: 'Folleto técnico del fabricante', pages: 14 },
+    aire: { title: 'Aire acondicionado Samsung', file: 'assets/manuales/aire-acondicionado-samsung-aj-nbtdeh.pdf', kind: 'Manual del usuario e instalación', pages: 43 },
+    campana: { title: 'Campana de cocina Samsung', file: 'assets/manuales/campana-samsung-nk24m50-nk36m50.pdf', kind: 'Montaje y modo de empleo', pages: 20 },
+  };
+
   const SECTIONS = [
     { id: 'manual-edificio', label: 'El edificio' },
+    { id: 'manual-equipos', label: 'Equipos' },
     { id: 'manual-seguridad', label: 'Seguridad' },
     { id: 'manual-primeros-pasos', label: 'Primeros pasos' },
     { id: 'manual-acceso', label: 'Tu acceso' },
@@ -103,6 +120,9 @@
     shield: 'M12 3.5 19 6v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V6zM9 12l2 2 4-4',
     info: 'M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zM12 11v5M12 8v.1',
     arrow: 'M5 12h14M13.5 6.5 19 12l-5.5 5.5',
+    doc: 'M7 3.5h7l4 4V20.5H7zM14 3.5v4h4M9.5 12.5h6M9.5 16h4',
+    snow: 'M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9.5 4.5 12 7l2.5-2.5M9.5 19.5 12 17l2.5 2.5',
+    hood: 'M9 3.5h6v5H9zM4 14.5 9 8.5h6l5 6zM4 14.5h16v2H4zM8 19.5v.1M12 19.5v.1M16 19.5v.1',
   };
   const Icon = ({ name, size = 22 }) => html`
     <svg width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
@@ -142,9 +162,30 @@
           <article class="mu-card" key=${c.title}>
             <div class="mu-card-head"><${Badge} name=${c.icon} /><h4>${c.title}</h4></div>
             <ul class="mu-list">${c.items.map((i) => html`<li key=${i}>${i}</li>`)}</ul>
+            ${c.doc && html`<${DocLink} id=${c.doc} label="Ver folleto del ascensor" />`}
           </article>`)}
       </div>
     <//>`;
+
+  const Equipment = () => html`
+    <${Section} id="manual-equipos" kicker="Manuales del fabricante" title="Equipos"
+      lead="Los manuales oficiales de los equipos instalados. Se abren acá mismo y también podés descargarlos.">
+      <div class="mu-grid mu-grid-3">
+        ${MANUAL.equipment.map((e) => html`
+          <article class="mu-card" key=${e.doc}>
+            <div class="mu-card-head"><${Badge} name=${e.icon} /><div><h4>${e.title}</h4><p class="mu-model" translate="no">${e.model}</p></div></div>
+            <p class="mu-text">${e.text}</p>
+            <p class="mu-doc-kind">${DOCS[e.doc].kind}</p>
+            <a class="btn btn-secondary btn-sm mu-doc-btn" href=${'#manual-doc/' + e.doc}><${Icon} name="doc" size=${18} />Ver manual</a>
+          </article>`)}
+      </div>
+    <//>`;
+
+  const DocLink = ({ id, label }) => {
+    const d = DOCS[id];
+    return html`<a class="mu-link" href=${'#manual-doc/' + id}>
+      <${Icon} name="doc" size=${16} />${label || 'Ver manual'}<span class="mu-meta"> · PDF, ${d.pages} págs.</span></a>`;
+  };
 
   const goTo = (id) => (e) => {
     e.preventDefault();
@@ -253,6 +294,7 @@
         ${SECTIONS.map((s) => html`<a key=${s.id} href=${'#' + s.id} onClick=${goTo(s.id)}>${s.label}</a>`)}
       </nav>
       <${Building} />
+      <${Equipment} />
       <${Security} />
       <${FirstSteps} />
       <${Access} />
@@ -260,6 +302,7 @@
     <//>`;
 
   window.KornManual = {
+    docs: DOCS,
     mount(el) {
       if (!el || el.dataset.mounted) return;
       el.dataset.mounted = '1';
