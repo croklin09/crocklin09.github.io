@@ -25,8 +25,6 @@
       --gold-800: #745819;
       --gold-accent: #d4b236;
       --on-gold: #ffffff;
-      /* Estado funcional (no es acento de marca): elementos certificados. */
-      --state-certified: #4e8a2e;
       --shadow-warm: 0 12px 32px rgba(46, 43, 34, .10);
       --radius-photo: 24px;
       --radius-pill: 999px;
@@ -85,14 +83,40 @@
     }
     .section-controls button:hover { background: var(--gold-700); color: var(--on-gold); }
 
-    /* Leyenda de certificados */
-    #legend {
-      position: fixed; right: 32px; top: calc(92px + env(safe-area-inset-top, 0px)); z-index: 2;
-      display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: var(--radius-pill); font-size: 14px;
+    /* Sello "A estrenar" */
+    .seal {
+      display: inline-flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: var(--radius-pill);
+      border: 1px solid var(--gold-700); background: var(--paper-soft); color: var(--gold-700);
+      font-size: 12px; line-height: 1; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; white-space: nowrap;
     }
-    #legend.hidden { display: none; }
-    #legend .swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--state-certified); }
-    #legend strong { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .seal::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold-500); }
+    #viewer-seal { position: fixed; right: 32px; top: calc(92px + env(safe-area-inset-top, 0px)); z-index: 2; box-shadow: var(--shadow-warm); }
+
+    /* Capas del modelo */
+    #layers {
+      position: fixed; left: 32px; bottom: calc(60px + env(safe-area-inset-bottom, 0px)); z-index: 2;
+      border-radius: 20px; padding: 6px; min-width: 220px;
+    }
+    #layers.hidden { display: none; }
+    #layers summary {
+      list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 8px 12px; border-radius: 14px; color: var(--ink); font-weight: 600; font-size: 14px;
+    }
+    #layers summary::-webkit-details-marker { display: none; }
+    #layers summary::after { content: ''; width: 8px; height: 8px; border-right: 1.5px solid var(--gold-700); border-bottom: 1.5px solid var(--gold-700); transform: rotate(-135deg) translate(-2px, -2px); transition: transform .2s; }
+    #layers:not([open]) summary::after { transform: rotate(45deg); }
+    #layers summary:focus-visible { outline: 2px solid var(--gold-700); outline-offset: 2px; }
+    .layer-list { list-style: none; margin: 0; padding: 2px 6px 6px; display: grid; gap: 2px; }
+    .layer-list label {
+      display: flex; align-items: center; gap: 10px; padding: 8px 8px; border-radius: 10px; cursor: pointer;
+      font-size: 14px; color: var(--body); min-height: 40px;
+    }
+    .layer-list label:hover { background: rgba(138, 105, 33, .08); }
+    .layer-list input { width: 18px; height: 18px; margin: 0; accent-color: var(--gold-700); flex: none; }
+    .layer-list input:focus-visible { outline: 2px solid var(--gold-700); outline-offset: 2px; }
+    .layer-swatch { width: 12px; height: 12px; border-radius: 3px; flex: none; border: 1px solid rgba(46, 43, 34, .2); }
+    .layer-count { margin-left: auto; color: var(--mute); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .layer-list .is-loading { opacity: .55; }
 
     /* Bloqueo de proyecto: sello Lifestyle, filete dorado, nombre corto, rótulo */
     .project-lockup {
@@ -220,12 +244,12 @@
     }
     .intro-copy {
       display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-      gap: 28px; min-width: 0; padding-block: 16px;
+      gap: 20px; min-width: 0; padding-block: 8px;
     }
-    .intro-brands { display: flex; flex-direction: column; align-items: center; gap: 28px; }
-    .intro-korn { width: min(260px, 60%); height: auto; }
+    .intro-brands { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .intro-korn { width: min(220px, 60%); height: auto; }
     .intro-seal { display: grid; justify-items: center; gap: 12px; }
-    .intro-seal img { width: 200px; height: auto; }
+    .intro-seal img { width: 170px; height: auto; }
     .intro-seal .rule, .intro-place .rule { width: 200px; height: 1px; background: var(--gold-accent); }
     .intro-seal .name { margin: 0; font-size: 22px; font-weight: 500; letter-spacing: .5em; margin-right: -.5em; color: var(--gold-700); }
     .intro-copy h1 {
@@ -235,6 +259,7 @@
     .intro-place { display: grid; justify-items: center; gap: 10px; margin-top: -12px; }
     .intro-place p { margin: 0; color: var(--ink); }
     .intro-place .rule { width: 120px; }
+    .intro-place .seal { margin-top: 6px; }
     .intro-copy .lead { margin: 0; max-width: 34ch; font-size: 17px; line-height: 1.6; color: var(--body); }
     .intro-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
     .intro-more { color: var(--gold-700); font-weight: 600; font-size: 15px; text-decoration: none; padding: 6px 4px; border-radius: 4px; }
@@ -285,7 +310,11 @@
     @media (max-width: 640px) {
       .brand-bar { left: 16px; top: calc(16px + env(safe-area-inset-top, 0px)); }
       .brand-logo { height: 36px; }
-      #legend { right: auto; left: 16px; top: auto; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); font-size: 13px; padding: 8px 14px; }
+      #viewer-seal { top: auto; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); padding: 9px 14px; font-size: 11px; }
+      #layers { left: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); min-width: 0; padding: 4px; }
+      #layers summary { padding: 8px 12px; font-size: 13px; }
+      #layers[open] { right: 16px; }
+      .intro-place .seal { margin-top: 2px; padding: 6px 12px; font-size: 11px; }
       /* Pestañas solo con ícono; la pestaña actual se oculta para ganar espacio */
       .site-nav { right: 16px; top: calc(14px + env(safe-area-inset-top, 0px)); gap: 2px; padding: 2px; }
       .nav-tab { padding: 0; width: 40px; }
@@ -372,7 +401,7 @@
 </head>
 <body>
   <h2 id="viewer-heading" class="visually-hidden" tabindex="-1">Visor 3D de la estructura</h2>
-  <div id="viewer" role="img" aria-label="Modelo 3D de la estructura de Ortega y Gasset 1957. Los elementos certificados se muestran en verde."></div>
+  <div id="viewer" role="img" aria-label="Modelo 3D de Ortega y Gasset 1957, con capas de arquitectura, instalación sanitaria, estructura e instalación eléctrica."></div>
   <header class="brand-bar">
     <a class="brand-home" href="#inicio" aria-label="Korn Desarrolla: ir al inicio"><img class="brand-logo" src="assets/korn-logo-dorado.svg" width="153" height="56" alt="" translate="no"></a>
   </header>
@@ -394,11 +423,13 @@
       <div class="intro-place">
         <p class="overline">Las Cañitas</p>
         <span class="rule" aria-hidden="true"></span>
+        <span class="seal">A estrenar</span>
       </div>
-      <p class="lead">Explorá la estructura del edificio en 3D: recorrela con cortes en X e Y y seguí qué elementos ya están certificados.</p>
+      <p class="lead">Recorré el edificio en 3D por capas: arquitectura, instalación sanitaria, estructura y eléctrica. Cortalo en X e Y para ver su interior.</p>
       <div class="intro-actions">
         <a class="btn btn-primary" id="intro-enter" href="#visor">Explorá el modelo 3D</a>
         <a class="btn btn-secondary" href="#brochure"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h7l4 4V20.5H7zM14 3.5v4h4M9.5 12.5h6M9.5 16h4"/></svg>Ver el brochure</a>
+        <a class="btn btn-secondary" href="#manual"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h10.5A1.5 1.5 0 0 1 18 5v15.5H7.5A1.5 1.5 0 0 1 6 19zM6 17.5h12M9.5 7.5h5M12 10.5v4"/></svg>Manual de usuario</a>
       </div>
       <a class="intro-more" href="#novedades">Novedades de obra <span aria-hidden="true">→</span></a>
     </div>
@@ -444,8 +475,12 @@
     <div class="doc-pages" id="doc-pages"></div>
     <p class="doc-status" id="doc-status" role="status" aria-live="polite"></p>
   </section>
-  <div id="status" class="overline" role="status" aria-live="polite">Cargando visor…</div>
-  <div id="legend" class="card hidden"><span class="swatch" aria-hidden="true"></span><span id="legend-text"></span></div>
+  <div id="status" class="overline" role="status" aria-live="polite">Preparando el visor…</div>
+  <p id="viewer-seal" class="seal">A estrenar</p>
+  <details id="layers" class="card hidden" open>
+    <summary>Capas</summary>
+    <ul class="layer-list" id="layer-list"></ul>
+  </details>
   <div id="section-tools" class="hidden">
     <div class="section-tool" data-axis="x">
       <button type="button" class="section-btn" id="section-x-btn" aria-pressed="false" aria-controls="section-x-panel" title="Corte en X" aria-label="Corte en X">
@@ -487,7 +522,7 @@
     <img src="assets/lifestyle-sello.svg" width="156" height="106" alt="Lifestyle" translate="no">
     <span class="rule" aria-hidden="true"></span>
     <p class="name" translate="no">GASSET</p>
-    <p class="meta overline">Estructura · IFC4 · v5</p>
+    <p class="meta overline">Modelo BIM · 4 capas</p>
   </div>
   <div id="hint">Arrastrá para orbitar · Clic derecho o flechas para desplazar · Rueda o +/− para acercar · F para encuadrar</div>
 
@@ -499,16 +534,25 @@
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-    import { IfcAPI, IFCRELDEFINESBYPROPERTIES } from 'web-ifc';
+    import { IfcAPI, IFCFLOWTERMINAL, IFCSITE } from 'web-ifc';
 
-    // Model preloaded on page open. Replace models/model.ifc to show another project.
-    const MODEL_URL = 'models/model.ifc';
+    // Models preloaded on page open, one per discipline. They share the project's
+    // internal origin, so they are loaded without re-centering to stay aligned.
+    // Sanitary fixtures (IfcFlowTerminal) are split out of the architecture model.
+    const MODELS = {
+      arq: { url: 'models/oyg-arq.ifc', label: 'arquitectura' },
+      est: { url: 'models/oyg-est.ifc', label: 'estructura' },
+      ie: { url: 'models/oyg-ie.ifc', label: 'instalación eléctrica' },
+    };
+    // color: null keeps the model's own materials; otherwise the layer is tinted.
+    const LAYERS = [
+      { id: 'arq', label: 'Arquitectura', color: null, swatch: '#e9e4da', on: true },
+      { id: 'san', label: 'Sanitaria', color: '#3f7fa8', on: false },
+      { id: 'est', label: 'Estructura', color: '#8f8a80', on: true },
+      { id: 'ie', label: 'Eléctrica', color: '#bc862a', on: false },
+    ];
     const WEB_IFC_WASM_PATH = 'https://cdn.jsdelivr.net/npm/web-ifc@0.0.78/';
 
-    // Elements whose "Certificated" property is YES/TRUE are drawn in this color.
-    const CERTIFIED_PROPERTY = 'Certificated';
-    // Functional state colour (matches --state-certified); not a brand accent.
-    const CERTIFIED_COLOR = { x: 0x4e / 255, y: 0x8a / 255, z: 0x2e / 255, w: 1 };
 
     // --- Vistas y pestañas --------------------------------------------------------
     // The URL hash is the state: #inicio (default), #visor, #novedades,
@@ -521,7 +565,7 @@
     const manualView = document.getElementById('manual');
     const docView = document.getElementById('doc');
     const nav = document.getElementById('site-nav');
-    const viewerUi = ['viewer', 'section-tools', 'view-tools', 'legend'].map((id) => document.getElementById(id))
+    const viewerUi = ['viewer', 'section-tools', 'view-tools', 'layers', 'viewer-seal'].map((id) => document.getElementById(id))
       .concat([...document.querySelectorAll('.brand-bar, .project-lockup, #hint')]);
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const metres = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -677,7 +721,10 @@
 
     async function route() {
       const hash = decodeURIComponent(location.hash.replace(/^#/, ''));
-      if (hash === 'visor') return showView('visor', document.getElementById('viewer-heading'));
+      if (hash === 'visor') {
+        setTimeout(startViewer); // models load on first visit to the viewer
+        return showView('visor', document.getElementById('viewer-heading'));
+      }
       if (hash === 'novedades') {
         showView('novedades', document.getElementById('news-title'));
         return loadNews();
@@ -755,24 +802,90 @@
     });
 
     // --- IFC loading ---------------------------------------------------------
-    // web-ifc outputs Y-up geometry; meshes are merged per color to keep draw calls low.
-    async function loadIfc(url) {
-      setStatus('Iniciando motor IFC…');
-      const ifcApi = new IfcAPI();
-      ifcApi.SetWasmPath(WEB_IFC_WASM_PATH, true);
-      await ifcApi.Init();
+    // web-ifc outputs Y-up geometry; each layer is merged per color to keep draw calls low.
+    // Sanitary fixtures (~2M triangles) and the electrical model (~0.6M) are heavy for
+    // phones, so those two layers are only built when the visitor turns them on.
+    const layerGroups = new Map();
+    const layerState = new Map(); // id -> 'idle' | 'loading' | 'ready'
+    const activePlanes = []; // section planes shared by every material (see setupSectionTools)
+    let ifcApi = null;
+    let arqData = null; // kept to build the sanitary layer on demand
+    let sceneRoot = null;
 
-      setStatus('Descargando modelo…');
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`No se pudo descargar el modelo (${url}, HTTP ${response.status}). Recargá la página para reintentar.`);
-      const data = new Uint8Array(await response.arrayBuffer());
+    function buildLayerPanel() {
+      const list = document.getElementById('layer-list');
+      list.replaceChildren(...LAYERS.map((layer) => {
+        const group = new THREE.Group();
+        group.name = layer.id;
+        group.visible = layer.on;
+        layerGroups.set(layer.id, group);
+        layerState.set(layer.id, 'idle');
+        const li = document.createElement('li');
+        const label = document.createElement('label');
+        label.dataset.layer = layer.id;
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = layer.on;
+        input.id = `layer-${layer.id}`;
+        input.addEventListener('change', () => {
+          group.visible = input.checked;
+          if (input.checked) ensureLayer(layer.id).catch((err) => { console.error(err); setStatus(`Error al cargar la capa: ${err.message}`, true); });
+        });
+        const swatch = document.createElement('span');
+        swatch.className = 'layer-swatch';
+        swatch.style.background = layer.color || layer.swatch;
+        const name = document.createElement('span');
+        name.textContent = layer.label;
+        const count = document.createElement('span');
+        count.className = 'layer-count';
+        count.textContent = layer.on ? '…' : 'Activar';
+        label.append(input, swatch, name, count);
+        li.append(label);
+        return li;
+      }));
+      if (window.matchMedia('(max-width: 640px)').matches) document.getElementById('layers').open = false;
+      document.getElementById('layers').classList.remove('hidden');
+    }
 
-      setStatus('Procesando geometría…');
-      const modelID = ifcApi.OpenModel(data, { COORDINATE_TO_ORIGIN: true });
-      const certified = findCertifiedElements(ifcApi, modelID);
-      const byColor = new Map();
+    function addMeshes(layerId, byColor) {
+      const group = layerGroups.get(layerId);
+      const tint = LAYERS.find((l) => l.id === layerId).color;
+      for (const { color, opacity, geometries } of byColor.values()) {
+        const material = new THREE.MeshLambertMaterial({
+          color: tint ? new THREE.Color(tint) : new THREE.Color().setRGB(...color, THREE.SRGBColorSpace),
+          transparent: opacity < 1,
+          opacity,
+          side: THREE.DoubleSide,
+          depthWrite: opacity >= 1,
+          clippingPlanes: activePlanes,
+          // Architecture sits slightly behind coplanar faces of the other disciplines (no z-fighting).
+          polygonOffset: layerId === 'arq', polygonOffsetFactor: 1, polygonOffsetUnits: 1,
+        });
+        const merged = mergeGeometries(geometries, false);
+        geometries.forEach((g) => g.dispose());
+        group.add(new THREE.Mesh(merged, material));
+      }
+    }
 
-      ifcApi.StreamAllMeshes(modelID, (mesh) => {
+    function markReady(layerId, count) {
+      layerState.set(layerId, 'ready');
+      const label = document.querySelector(`#layer-list label[data-layer="${layerId}"]`);
+      label.classList.remove('is-loading');
+      label.querySelector('.layer-count').textContent = String(count);
+    }
+
+    // Streams one IFC model into per-layer, per-color geometry buckets.
+    // pick(type) returns the layer id for an element type, or null to skip it.
+    function streamModel(data, pick, types) {
+      const modelID = ifcApi.OpenModel(data, { COORDINATE_TO_ORIGIN: false });
+      const buckets = new Map();
+      const elements = new Map();
+      const onMesh = (mesh) => {
+        const layerId = pick(ifcApi.GetLineType(modelID, mesh.expressID));
+        if (!layerId) return;
+        if (!buckets.has(layerId)) { buckets.set(layerId, new Map()); elements.set(layerId, new Set()); }
+        const byColor = buckets.get(layerId);
+        elements.get(layerId).add(mesh.expressID);
         const placedGeometries = mesh.geometries;
         for (let i = 0; i < placedGeometries.size(); i++) {
           const placed = placedGeometries.get(i);
@@ -796,50 +909,67 @@
           geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(indices), 1));
           geometry.applyMatrix4(new THREE.Matrix4().fromArray(placed.flatTransformation));
 
-          const { x: r, y: g, z: b, w: a } = certified.has(mesh.expressID) ? CERTIFIED_COLOR : placed.color;
+          const { x: r, y: g, z: b, w: a } = placed.color;
           const key = `${r.toFixed(3)},${g.toFixed(3)},${b.toFixed(3)},${a.toFixed(3)}`;
           if (!byColor.has(key)) byColor.set(key, { color: [r, g, b], opacity: a, geometries: [] });
           byColor.get(key).geometries.push(geometry);
         }
-      });
+      };
+      if (types) ifcApi.StreamAllMeshesWithTypes(modelID, types, onMesh);
+      else ifcApi.StreamAllMeshes(modelID, onMesh);
       ifcApi.CloseModel(modelID);
-
-      const model = new THREE.Group();
-      for (const { color, opacity, geometries } of byColor.values()) {
-        const material = new THREE.MeshLambertMaterial({
-          color: new THREE.Color().setRGB(...color, THREE.SRGBColorSpace),
-          transparent: opacity < 1,
-          opacity,
-          side: THREE.DoubleSide,
-          depthWrite: opacity >= 1,
-        });
-        const merged = mergeGeometries(geometries, false);
-        geometries.forEach((g) => g.dispose());
-        model.add(new THREE.Mesh(merged, material));
+      for (const [layerId, byColor] of buckets) {
+        addMeshes(layerId, byColor);
+        markReady(layerId, elements.get(layerId).size);
       }
-      model.userData.certifiedCount = certified.size;
-      return model;
     }
 
-    // Walks IfcRelDefinesByProperties and returns the expressIDs of elements
-    // carrying a CERTIFIED_PROPERTY property whose value is YES / TRUE.
-    function findCertifiedElements(ifcApi, modelID) {
-      const isTrue = (v) => v != null && ['YES', 'TRUE', 'T', '1'].includes(String(v.value ?? v).toUpperCase());
-      const result = new Set();
-      const rels = ifcApi.GetLineIDsWithType(modelID, IFCRELDEFINESBYPROPERTIES);
-      for (let i = 0; i < rels.size(); i++) {
-        const rel = ifcApi.GetLine(modelID, rels.get(i));
-        const pset = ifcApi.GetLine(modelID, rel.RelatingPropertyDefinition.value);
-        const props = pset.HasProperties ?? [];
-        const certifiedProp = props
-          .map((ref) => ifcApi.GetLine(modelID, ref.value))
-          .find((prop) => prop.Name?.value === CERTIFIED_PROPERTY);
-        if (!certifiedProp) continue;
-        const values = certifiedProp.EnumerationValues ?? [certifiedProp.NominalValue];
-        if (!values.some(isTrue)) continue;
-        for (const obj of rel.RelatedObjects) result.add(obj.value);
+    async function fetchModel(source, step) {
+      setStatus(`Descargando ${source.label}${step}…`);
+      const response = await fetch(source.url);
+      if (!response.ok) throw new Error(`No se pudo descargar el modelo de ${source.label} (HTTP ${response.status}). Recargá la página para reintentar.`);
+      const data = new Uint8Array(await response.arrayBuffer());
+      setStatus(`Procesando ${source.label}${step}…`);
+      await new Promise((r) => requestAnimationFrame(() => setTimeout(r)));
+      return data;
+    }
+
+    // Base load: architecture (without sanitary fixtures and the site terrain) and structure.
+    async function loadLayers(root) {
+      sceneRoot = root;
+      buildLayerPanel();
+      LAYERS.forEach((l) => root.add(layerGroups.get(l.id)));
+      setStatus('Iniciando motor IFC…');
+      ifcApi = new IfcAPI();
+      ifcApi.SetWasmPath(WEB_IFC_WASM_PATH, true);
+      await ifcApi.Init();
+
+      layerState.set('arq', 'loading');
+      arqData = await fetchModel(MODELS.arq, ' (1 de 2)');
+      streamModel(arqData, (type) => (type === IFCSITE || type === IFCFLOWTERMINAL ? null : 'arq'));
+      fitToModel(root); // show the architecture as soon as it is ready
+
+      layerState.set('est', 'loading');
+      const estData = await fetchModel(MODELS.est, ' (2 de 2)');
+      streamModel(estData, () => 'est');
+    }
+
+    // Builds a heavy layer the first time it is turned on.
+    async function ensureLayer(layerId) {
+      if (layerState.get(layerId) !== 'idle' || !ifcApi) return;
+      layerState.set(layerId, 'loading');
+      const label = document.querySelector(`#layer-list label[data-layer="${layerId}"]`);
+      label.classList.add('is-loading');
+      label.querySelector('.layer-count').textContent = '…';
+      if (layerId === 'san') {
+        setStatus('Procesando instalación sanitaria…');
+        await new Promise((r) => requestAnimationFrame(() => setTimeout(r)));
+        streamModel(arqData, (type) => (type === IFCFLOWTERMINAL ? 'san' : null), [IFCFLOWTERMINAL]);
+      } else if (layerId === 'ie') {
+        const ieData = await fetchModel(MODELS.ie, '');
+        streamModel(ieData, () => 'ie');
       }
-      return result;
+      setStatus('');
     }
 
     // --- Section cuts ----------------------------------------------------------
@@ -853,11 +983,11 @@
         x: { normal: new THREE.Vector3(-1, 0, 0), min: box.min.x, max: box.max.x },
         y: { normal: new THREE.Vector3(0, 0, 1), min: -box.max.z, max: -box.min.z },
       };
-      const materials = [];
-      model.traverse((o) => { if (o.isMesh) materials.push(o.material); });
+      // Every layer's materials point at activePlanes, so layers loaded later are cut too.
       const applyPlanes = () => {
-        const planes = Object.values(sections).filter((s) => s.active).map((s) => s.plane);
-        materials.forEach((m) => { m.clippingPlanes = planes; m.needsUpdate = true; });
+        activePlanes.length = 0;
+        activePlanes.push(...Object.values(sections).filter((s) => s.active).map((s) => s.plane));
+        model.traverse((o) => { if (o.isMesh) o.material.needsUpdate = true; });
       };
 
       for (const [axis, section] of Object.entries(sections)) {
@@ -917,9 +1047,16 @@
       controls.update();
     }
 
+    // Loading ~30 MB of IFC blocks the page while geometry is processed, so it only
+    // starts the first time the viewer is opened (cover, news and manual stay responsive).
+    let viewerStarted = false;
+    async function startViewer() {
+    if (viewerStarted) return;
+    viewerStarted = true;
     try {
-      const model = await loadIfc(MODEL_URL);
+      const model = new THREE.Group();
       scene.add(model);
+      await loadLayers(model);
       fitToModel(model);
       setupSectionTools(model);
       const zoomBy = (factor) => {
@@ -953,16 +1090,11 @@
         else if (e.key === '+' || e.key === '=') zoomBy(0.8);
         else if (e.key === '-' || e.key === '_') zoomBy(1.25);
       });
-      const legendEl = document.getElementById('legend');
-      const n = model.userData.certifiedCount;
-      const count = document.createElement('strong');
-      count.textContent = String(n);
-      document.getElementById('legend-text').replaceChildren('Certificado · ', count, ` ${n === 1 ? 'elemento' : 'elementos'}`);
-      legendEl.classList.remove('hidden');
       setStatus('');
     } catch (err) {
       console.error(err);
       setStatus(`Error al cargar: ${err.message}`, true);
+    }
     }
   </script>
 </body>
