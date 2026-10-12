@@ -1,0 +1,121 @@
+/* Manual de usuario — Korn brochure aesthetic (paper, gold accents, Montserrat). */
+.manual-view { padding: calc(120px + env(safe-area-inset-top, 0px)) 32px calc(64px + env(safe-area-inset-bottom, 0px)); }
+.manual-inner { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+#manual-root { min-width: 0; }
+.manual-inner > .overline { margin: 0; color: var(--mute); }
+.manual-inner > h2 { margin: 0; font-size: 40px; line-height: 1.12; font-weight: 600; color: var(--ink); }
+.manual-inner > h2:focus { outline: none; }
+.manual-inner > .rule { width: 120px; height: 1px; background: var(--gold-accent); }
+.manual-intro { margin: 0; max-width: 62ch; font-size: 17px; line-height: 1.6; color: var(--body); }
+.manual-pdf[hidden] { display: none; }
+.manual-pdf { justify-self: start; margin-top: 4px; }
+
+.mu-index {
+  /* Sticky offsets count from the view's padding (120px): stick just below the tab bar (84px) */
+  position: sticky; top: calc(-36px - env(safe-area-inset-top, 0px)); z-index: 1; display: flex; gap: 8px; flex-wrap: wrap;
+  margin: 16px 0 8px; padding: 16px 0 12px; background: var(--paper);
+}
+.mu-index a {
+  padding: 8px 16px; border-radius: var(--radius-pill); border: 1px solid var(--hairline); background: var(--paper-soft);
+  color: var(--gold-700); font-weight: 600; font-size: 14px; text-decoration: none; transition: border-color .2s, background-color .2s;
+}
+.mu-index a:hover { border-color: var(--gold-500); }
+.mu-index a:focus-visible, .mu-link:focus-visible { outline: 2px solid var(--gold-700); outline-offset: 2px; }
+
+.mu-section { padding-top: 56px; scroll-margin-top: 40px; }
+.mu-section-head { scroll-margin-top: 164px; }
+.mu-section-head { display: grid; gap: 10px; margin-bottom: 28px; }
+.mu-kicker { margin: 0; color: var(--mute); }
+.mu-section h3 { margin: 0; font-size: 32px; line-height: 1.15; font-weight: 600; color: var(--ink); text-wrap: balance; }
+.mu-section h3:focus { outline: none; }
+.mu-rule { width: 96px; height: 1px; background: var(--gold-accent); }
+.mu-lead { margin: 0; max-width: 64ch; font-size: 17px; line-height: 1.6; color: var(--body); }
+
+.mu-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.mu-card {
+  background: var(--paper-soft); border: 1px solid var(--hairline); border-radius: var(--radius-photo);
+  box-shadow: var(--shadow-warm); padding: 24px; display: grid; gap: 12px; align-content: start; min-width: 0;
+}
+.mu-card-head { display: flex; align-items: center; gap: 14px; }
+.mu-card h4, .mu-timeline h4, .mu-access h4 { margin: 0; font-size: 18px; line-height: 1.3; font-weight: 600; color: var(--ink); }
+.mu-text { margin: 0; font-size: 15px; line-height: 1.6; color: var(--body); }
+.mu-list { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 15px; line-height: 1.55; color: var(--body); }
+.mu-list li::marker { color: var(--gold-500); }
+.mu-link { display: inline-flex; align-items: center; gap: 6px; color: var(--gold-700); font-weight: 600; font-size: 14px; text-decoration: none; justify-self: start; border-radius: 4px; }
+.mu-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+.mu-badge { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--gold-500); color: var(--on-gold); }
+.mu-ring { flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--gold-500); color: var(--gold-700); background: var(--paper); }
+.mu-num { font-size: 34px; line-height: 1; font-weight: 300; color: var(--gold-500); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+
+/* Niveles del edificio */
+.mu-levels { margin: 0 0 28px; display: grid; gap: 0; border: 1px solid var(--hairline); border-radius: var(--radius-photo); overflow: hidden; background: var(--paper-soft); box-shadow: var(--shadow-warm); }
+.mu-level { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 24px; padding: 18px 24px; border-top: 1px solid var(--hairline); }
+.mu-level:first-child { border-top: 0; }
+.mu-level-name { margin: 0; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 10px; }
+.mu-level-name::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--gold-500); flex: none; }
+.mu-level ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.mu-level li { padding: 6px 12px; border-radius: var(--radius-pill); background: var(--paper); border: 1px solid var(--hairline); font-size: 14px; color: var(--body); }
+.mu-level-ss { background: rgba(225, 214, 191, .35); }
+.mu-levels figcaption { padding: 10px 24px 14px; border-top: 1px solid var(--hairline); }
+
+/* Primeros pasos */
+.mu-timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.mu-timeline li { display: grid; grid-template-columns: 56px 52px minmax(0, 1fr); gap: 20px; align-items: start; padding: 14px 0; position: relative; }
+.mu-timeline li::before { content: ''; position: absolute; left: calc(56px + 20px + 26px); top: 66px; bottom: -14px; border-left: 1px dashed var(--gold-500); }
+.mu-timeline li:last-child::before { display: none; }
+.mu-timeline .mu-num { padding-top: 10px; }
+.mu-timeline h4 { margin-top: 4px; }
+
+.mu-callout { margin-top: 24px; display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-radius: 16px; background: rgba(225, 214, 191, .45); border: 1px solid var(--hairline); }
+.mu-callout p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--body); }
+.mu-callout strong { color: var(--ink); }
+
+/* Configurá tu acceso */
+.mu-access { list-style: none; margin: 0; padding: 0; display: grid; gap: 32px; }
+.mu-access > li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 20px; }
+.mu-access > li > div { display: grid; gap: 8px; min-width: 0; }
+.mu-pin { display: flex; gap: 10px; margin-top: 8px; }
+.mu-pin span { width: 44px; height: 52px; border: 1px solid var(--gold-500); border-radius: 10px; background: var(--paper-soft); display: grid; place-items: center; }
+.mu-pin span::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); }
+.mu-tips { list-style: none; margin: 10px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.mu-tips li { display: grid; justify-items: center; gap: 8px; text-align: center; font-size: 14px; color: var(--body); }
+.mu-flow { margin-top: 8px; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px; align-items: stretch; }
+.mu-flow-step { display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 16px; background: var(--paper-soft); border: 1px solid var(--hairline); box-shadow: var(--shadow-warm); }
+.mu-flow-step p { margin: 0; font-size: 15px; line-height: 1.45; color: var(--body); }
+.mu-flow-step strong { color: var(--ink); }
+.mu-flow-arrow { align-self: center; color: var(--gold-500); }
+
+/* Cerradura */
+.mu-lock { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.mu-keys { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.mu-keys li { display: flex; align-items: center; gap: 14px; font-size: 16px; color: var(--body); }
+.mu-key { flex: none; width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; border: 1px solid var(--gold-500); color: var(--gold-700); font-weight: 600; font-variant-numeric: tabular-nums; background: var(--paper-soft); }
+.mu-help-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+@media (max-width: 640px) {
+  .manual-view { padding: calc(80px + env(safe-area-inset-top, 0px)) 16px calc(40px + env(safe-area-inset-bottom, 0px)); }
+  .manual-inner > h2 { font-size: 30px; }
+  .manual-intro { font-size: 15px; }
+  /* The sticky index shares the top row with the tab bar: leave room for it on the right */
+  .mu-index { top: calc(-80px - env(safe-area-inset-top, 0px)); margin-top: 8px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-left: -16px; margin-right: 140px; padding: 14px 8px 10px 16px; }
+  .mu-index::-webkit-scrollbar { display: none; }
+  .mu-index a { white-space: nowrap; font-size: 13px; padding: 8px 14px; }
+  .mu-section { padding-top: 40px; }
+  .mu-section-head { scroll-margin-top: 80px; }
+  .mu-section h3 { font-size: 24px; }
+  .mu-lead { font-size: 15px; }
+  .mu-card { padding: 18px; }
+  .mu-level { grid-template-columns: 1fr; gap: 10px; padding: 14px 16px; }
+  .mu-levels figcaption { padding: 10px 16px 12px; }
+  .mu-num { font-size: 26px; }
+  .mu-timeline li { grid-template-columns: 34px 44px minmax(0, 1fr); gap: 12px; }
+  .mu-timeline li::before { left: calc(34px + 12px + 22px); top: 56px; }
+  .mu-ring { width: 44px; height: 44px; }
+  .mu-access > li { grid-template-columns: 34px minmax(0, 1fr); gap: 12px; }
+  .mu-tips { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 16px; }
+  .mu-flow { grid-template-columns: 1fr; }
+  .mu-flow-arrow { justify-self: center; transform: rotate(90deg); }
+  .mu-lock { grid-template-columns: 1fr; }
+  .mu-callout { align-items: flex-start; padding: 16px; }
+}
