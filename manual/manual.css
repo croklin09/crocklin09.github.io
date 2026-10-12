@@ -66,6 +66,11 @@
 .mu-timeline li:last-child::before { display: none; }
 .mu-timeline .mu-num { padding-top: 10px; }
 .mu-timeline h4 { margin-top: 4px; }
+.mu-step-link { margin-top: 10px; }
+.mu-meta { font-weight: 400; color: var(--mute); }
+.mu-model { margin: 2px 0 0; font-size: 13px; color: var(--mute); letter-spacing: .02em; }
+.mu-doc-kind { margin: 0; font-size: 12px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); }
+.mu-doc-btn { justify-self: start; }
 
 .mu-callout { margin-top: 24px; display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-radius: 16px; background: rgba(225, 214, 191, .45); border: 1px solid var(--hairline); }
 .mu-callout p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--body); }
